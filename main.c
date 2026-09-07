@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <curses.h>
 #include <sys/select.h>
+#include "prototipos.h"
+#include "estructuras.h"
 
 int kbhit(void);
 

@@ -4,6 +4,7 @@
 #include "prototipos.h"
 #include "estructuras.h"
 
+// Para compilar: gcc *.c -I./include -lncurses -lm
 int kbhit(void);
 
 int main()

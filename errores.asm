@@ -1,0 +1,12 @@
+MOV AX,5
+
+END
+mov AX,1
+MOV ax,1
+MOV AX,2.5
+MOV AX
+MOV AX,1,2
+INC 5
+MOV  AX,1
+DIV AX,0
+ADD AX,1

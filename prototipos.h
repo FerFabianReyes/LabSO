@@ -9,60 +9,63 @@
 #include "estructuras.h"
 
 /*---------- ARCHIVOS --------------------------------*/
-Archivo* crearArchivo();
-Renglon* crearRenglon(char *texto);
-void agregarRenglon(Archivo *archivo, char *texto);
-void liberarArchivo(Archivo *archivo);
-int leerArchivo(char *nomArchivo, Archivo *archivo);
-Ejecucion* crearEjecucion(Archivo *prog, char *nombre);
-void liberarEjecucion(Ejecucion *ejec);
+Archivo* crearArchivo(); // F
+Renglon* crearRenglon(char *texto); // J
+void agregarRenglon(Archivo *archivo, char *texto); // I
+void liberarArchivo(Archivo *archivo); // G
+int leerArchivo(char *nomArchivo, Archivo *archivo); // F
+Ejecucion* crearEjecucion(Archivo *prog, char *nombre); //J
+void liberarEjecucion(Ejecucion *ejec); // I
 
 /*---------- TOKENS --------------------------------*/
-int tokenizar(Archivo *archivo);
-void agregarToken(Renglon *renglon, Token *token);
-Token* crearToken();
-int agregarTipoDato(Token *token);
-void liberarRenglon(Renglon *renglon);
+int tokenizar(Archivo *archivo); //G
+void agregarToken(Renglon *renglon, Token *token); // F
+Token* crearToken(); //J
+int agregarTipoDato(Token *token);//I
+void liberarRenglon(Renglon *renglon);//G
 
 /*---------- LEXICO Y SINTACTICO --------------------------------*/
-int esNumero(Token *token);
-int esRegistro(Token *token);
-int esInstruccion(Token *token);
-int verifSintaxis(Archivo *archivo);
-int parserDosParametros(Token *token);
-int parserUnParametro(Token *token);
-int espaciosMultiples(char *texto);
+int esNumero(Token *token); //F
+int esRegistro(Token *token); //J
+int esInstruccion(Token *token);//I
+int verifSintaxis(Archivo *archivo);//G
+int parserDosParametros(Token *token);//F
+int parserUnParametro(Token *token);//J
+int espaciosMultiples(char *texto);//I
 
 /*---------- INSTRUCCIONES --------------------------------*/
-Registros* crearRegistro();
-int ejecutarPrograma(Ejecucion *ejec);
-int *obtenerRegistro(char *registro);
-int mov(Token *param);
+Registros* crearRegistro();//G
+int ejecutarPrograma(Ejecucion *ejec);//F
+int *obtenerRegistro(char *registro);//J
+int mov(Token *param); //PENDIENTE
 int add(Token *param);
 int sub(Token *param);
 int mul(Token *param);
 int divR(Token *param);
-int inc(Token *param);
-int dec(Token *param);
+int inc(Token *param); //I
+int dec(Token *param);//G
 
 /*---------- VENTANAS --------------------------------*/
-int kbhit(void);
-WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);
-void impVentanaComandos(WINDOW *ventana);
-void limpiarComando(WINDOW *ventana);
-void impEncabezado(WINDOW *ventana);
-void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado);
-void limpiarVentana(WINDOW *ventana, char *nomVentana);
+int kbhit(void);//F
+WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);//J
+void impVentanaComandos(WINDOW *ventana);//I
+void limpiarComando(WINDOW *ventana);//G
+void impEncabezado(WINDOW *ventana);//F
+void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado);//J
+void limpiarVentana(WINDOW *ventana, char *nomVentana);//I
 
 /*---------- COMANDOS --------------------------------*/
-int detectarComando(char cad[]);
-char *sacarNomArchivo(char cad[]);
-void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter);
-void borrarCaracter(WINDOW *ventana, int *pos);
-void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);
+int detectarComando(char cad[]);//G
+char *sacarNomArchivo(char cad[]);//F
+void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter);//J
+void borrarCaracter(WINDOW *ventana, int *pos);//I
+void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);//G
 
 /* --------- LOG ERRORES ----------------------------*/
-void detectarError(WINDOW *ventana, int error);
-const char *mensajeEstatus(int codigo);
+void detectarError(WINDOW *ventana, int error);//F
+const char *mensajeEstatus(int codigo);//J
+
+/* prototipos.h: I
+  estructuras.h: G*/
 
 #endif

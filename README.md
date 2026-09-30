@@ -1,4 +1,4 @@
-# Simulador de SO (proyecto unificado E1 + E2)
+# Simulador de SO
 
 ## Requisitos
 Linux (o WSL en Windows) con ncurses:
@@ -43,5 +43,4 @@ Comandos dentro del programa:
 ## Reglas del equipo
 - Las funciones van en archivos .c; en los .h solo van prototipos,
   estructuras y constantes.
-- Cada cambio en su propia rama de Git y revisado por alguien mas antes
-  de integrarlo.
+- Cada cambio en su propia rama de Git 

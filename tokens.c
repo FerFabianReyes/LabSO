@@ -51,22 +51,18 @@ static int tokenizarRenglon(Renglon *ren)
     /* Renglon vacio o solo con espacios */
     if (strspn(ren->texto, " \t") == len) { return LINEA_VACIA; }
 
-    /* PENDIENTE Conserva la coma unida al primer registro, pero permite escribir AX,5 o AX, 5. */
+    int resEspacios = verifEspacios(ren->texto);
+    if (resEspacios != BIEN) { return resEspacios; }
+
     char *textoCopia = malloc(len * 2 + 1);
     int j = 0;
     for (size_t i = 0; i < len; i++) {
         textoCopia[j++] = ren->texto[i];
-        if (ren->texto[i] == ',' && ren->texto[i + 1] != ' ' &&
-            ren->texto[i + 1] != '\t' && ren->texto[i + 1] != '\0') {
+        if (ren->texto[i] == ',' && ren->texto[i + 1] != '\0') {
             textoCopia[j++] = ' ';
         }
     }
     textoCopia[j] = '\0';
-
-    if (espaciosMultiples(textoCopia) == ESPACIOS_EXTRA) {
-        free(textoCopia);
-        return ESPACIOS_EXTRA;
-    }
 
     int res = BIEN;
     char *delim;

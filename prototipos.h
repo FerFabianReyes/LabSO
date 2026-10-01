@@ -32,6 +32,7 @@ int verifSintaxis(Archivo *archivo);//G
 int parserDosParametros(Token *token);//F
 int parserUnParametro(Token *token);//J
 int espaciosMultiples(char *texto);//I
+int verifEspacios(char *texto);//
 
 /*---------- INSTRUCCIONES --------------------------------*/
 Registros* crearRegistro();//G
@@ -40,8 +41,8 @@ int obtenerRegistro(char nombre[], Registros *registros, int **registro);//J
 int obtenerValor(Token *tok);//I
 int mov(Token *param);//G
 int add(Token *param);//F
-int sub(Token *param);//J
-int mul(Token *param);//I
+int sub(Token *param);//F
+int mul(Token *param);//F
 int divR(Token *param);//G
 int inc(Token *param);//I
 int dec(Token *param);//G

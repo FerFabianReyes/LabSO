@@ -79,6 +79,7 @@ typedef enum errorAdvertencia{
     DIV_ENTRE_CERO,
     ESPACIOS_EXTRA,
     INSTRUCCION_NO_RECONOCIDA,
+    COMA_CON_ESPACIOS,
 
 /*----- Comandos -----*/
     COMANDO_INVALIDO = 500

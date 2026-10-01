@@ -11,7 +11,6 @@ static int coincide(const char *texto, const char *patron)
 }
 
 /*--------------- Lexico ----------------------*/
-/* PENDIENTE validar el entero sin regex. */
 int esNumero(Token *token)
 {
     char *dato = token->textoToken;
@@ -94,6 +93,23 @@ int verifSintaxis(Archivo *archivo)
 
     for (Renglon *ren = archivo->inicio; ren; ren = ren->sig) {
         if (ren->error == BIEN) { ren->error = verifRenglon(ren); }
+    }
+    return BIEN;
+}
+
+int verifEspacios(char *texto)
+{
+    int len = strlen(texto);
+
+    if (strchr(texto, '\t')) { return ESPACIOS_EXTRA; }
+    if (texto[0] == ' ' || texto[len - 1] == ' ') { return ESPACIOS_EXTRA; }
+    if (espaciosMultiples(texto) == ESPACIOS_EXTRA) { return ESPACIOS_EXTRA; }
+
+    for (int i = 0; i < len; i++) {
+        if (texto[i] == ',' &&
+            ((i > 0 && texto[i - 1] == ' ') || texto[i + 1] == ' ')) {
+            return COMA_CON_ESPACIOS;
+        }
     }
     return BIEN;
 }

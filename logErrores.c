@@ -57,7 +57,10 @@ void detectarError(WINDOW *ventana, int error)
         mvwprintw(ventana, 2, 1, " Error %d: No se puede dividir entre cero", error);
         break;
     case ESPACIOS_EXTRA:
-        mvwprintw(ventana, 2, 1, " Error %d: Se detectaron espacios múltiples en instrucciones", error);
+        mvwprintw(ventana, 2, 1, " Error %d: Espacios de más o tabulaciones en la instrucción", error);
+        break;
+    case COMA_CON_ESPACIOS:
+        mvwprintw(ventana, 2, 1, " Error %d: No se permiten espacios antes ni después de la coma", error);
         break;
     case INSTRUCCION_NO_RECONOCIDA:
         mvwprintw(ventana, 2, 1, " Error %d: Operación no reconocida", error);
@@ -93,7 +96,8 @@ const char *mensajeEstatus(int codigo)
     case PARAMETROS_INCORRECTOS:
     case PARAMETROS_INSUFICIENTES:
     case PARAMETROS_EXTRA:
-    case ESPACIOS_EXTRA:            return "Error sintaxis";
+    case ESPACIOS_EXTRA:
+    case COMA_CON_ESPACIOS:         return "Error sintaxis";
 
     default:                        return "Error";
     }

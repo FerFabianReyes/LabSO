@@ -36,13 +36,14 @@ int espaciosMultiples(char *texto);//I
 /*---------- INSTRUCCIONES --------------------------------*/
 Registros* crearRegistro();//G
 int ejecutarPrograma(Ejecucion *ejec);//F
-int *obtenerRegistro(char *registro);//J
-int mov(Token *param); //PENDIENTE
-int add(Token *param);
-int sub(Token *param);
-int mul(Token *param);
-int divR(Token *param);
-int inc(Token *param); //I
+int obtenerRegistro(char nombre[], Registros *registros, int **registro);//J
+int obtenerValor(Token *tok);//I
+int mov(Token *param);//G
+int add(Token *param);//F
+int sub(Token *param);//J
+int mul(Token *param);//I
+int divR(Token *param);//G
+int inc(Token *param);//I
 int dec(Token *param);//G
 
 /*---------- VENTANAS --------------------------------*/

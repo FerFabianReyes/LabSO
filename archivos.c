@@ -14,6 +14,8 @@ Ejecucion* crearEjecucion(Archivo *prog, char *nombre)
     nueva->estado = ESPERA;
     nueva->espera = 0;
     reg->EAX = 0; reg->EBX = 0; reg->ECX = 0; reg->EDX = 0;
+    static int siguienteId = 0;
+    nueva->id = siguienteId++;
     return nueva;
 }
 

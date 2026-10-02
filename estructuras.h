@@ -35,6 +35,7 @@ typedef struct {
     Renglon *IR;
     int estado;
     int espera;
+    int id;
 } Ejecucion;
 
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/

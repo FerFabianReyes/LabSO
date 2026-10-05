@@ -146,7 +146,7 @@ void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado)
     }
     if (fila >= maxY - 1) fila = 4;
 
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_ID,     ejecucion->id, 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     ejecucion->id);
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, ejecucion->nombre, 0);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     ejecucion->PC);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_AX,     reg->EAX);

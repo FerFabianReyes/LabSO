@@ -43,6 +43,20 @@ void liberarRenglon(Renglon *renglon)
     free(renglon);
 }
 
+void quitarComentario(Renglon *ren)
+{
+    char *com  = strchr(ren->texto, ';');
+    if (com) {
+        *com = '\0';
+        int n = com - ren->texto;
+        while (n > 0 && ren->texto[n-1] == ' ')
+        {
+            ren->texto[--n] = '\0';
+        }
+    }
+    
+}
+
 /* Separa un renglin en tokens. Regresa BIEN o el error encontrado. */
 static int tokenizarRenglon(Renglon *ren)
 {
@@ -50,6 +64,8 @@ static int tokenizarRenglon(Renglon *ren)
 
     /* Renglon vacio o solo con espacios */
     if (strspn(ren->texto, " \t") == len) { return LINEA_VACIA; }
+
+    quitarComentario(ren);
 
     int resEspacios = verifEspacios(ren->texto);
     if (resEspacios != BIEN) { return resEspacios; }

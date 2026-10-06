@@ -23,6 +23,7 @@ void agregarToken(Renglon *renglon, Token *token); // F
 Token* crearToken(); //J
 int agregarTipoDato(Token *token);//I
 void liberarRenglon(Renglon *renglon);//G
+void quitarComentario(Renglon *ren);
 
 /*---------- LEXICO Y SINTACTICO --------------------------------*/
 int esNumero(Token *token); //F ----------------

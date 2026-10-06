@@ -34,17 +34,23 @@ int main()
         /*---------- Ejecucion de una instruccion ----------*/
         if (ejecucion->estado == EJECUCION)
         {
-            if (!ejecucion->IR) {
-                /* Fin del archivo: el programa termina son necesidad de END */
-                ejecucion->estado = ESPERA;
-            } else if (ejecucion->espera < 125) {
+            if (ejecucion->espera < 125) {
                 ejecucion->espera++;
             } else {
                 ejecucion->espera = 0;
                 int res = ejecutarPrograma(ejecucion);
                 impInstruccVentana(ventanaDatos, ejecucion, res);
+
+                if (ejecucion->estado == TERMINADO) { ejecucion->estado = ESPERA;}
+
+                if (!ejecucion->IR->sig && ejecucion->estado != ESPERA)
+                {
+                    res = NO_HAY_END; 
+                    ejecucion->estado = ESPERA;
+                } else {
+                    ejecucion->IR = ejecucion->IR->sig;
+                }
                 if (res != BIEN) { detectarError(ventanaErrores, res); }
-                ejecucion->IR = ejecucion->IR->sig;
             }
         }
 

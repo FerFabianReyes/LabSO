@@ -71,6 +71,10 @@ void detectarError(WINDOW *ventana, int error)
         mvwprintw(ventana, 2, 1, " Error %d: El comando que ingresó es inválido. Favor de verificar", error);
         break;
 
+     case NO_HAY_END:
+        mvwprintw(ventana, 2, 1, " Error %d: No hay instrucción END para terminar", error);
+        break;    
+
     default:
         mvwprintw(ventana, 2, 1, " Error %d: Error desconocido", error);
         break;

@@ -50,7 +50,7 @@ typedef enum comandoTerminal{
 
 /*------------ ESTADOS DEL SISTEMA  ---------------------------------*/
 typedef enum estadoSistema{
-    EJECUCION = 50, ESPERA
+    EJECUCION = 50, ESPERA, TERMINADO
 } estadoSistema;
 
 /*------------ ERRORES Y ADVERTENCIAS ---------------------------------*/
@@ -81,6 +81,7 @@ typedef enum errorAdvertencia{
     ESPACIOS_EXTRA,
     INSTRUCCION_NO_RECONOCIDA,
     COMA_CON_ESPACIOS,
+    NO_HAY_END,
 
 /*----- Comandos -----*/
     COMANDO_INVALIDO = 500

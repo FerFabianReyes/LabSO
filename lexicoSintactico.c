@@ -40,7 +40,7 @@ int esInstruccion(Token *token)
 {
     char *dato = token->textoToken;
 
-    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|NEG|MOD)$")) { return INSTR; }
+    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|NEG|MOD|END)$")) { return INSTR; }
     if (coincide(dato, "^[a-z]+$")) { return INICIA_MINUSCULA; }
     return esRegistro(token);
 }
@@ -83,6 +83,12 @@ static int verifRenglon(Renglon *ren)
     if (!strcmp(op, "INC") || !strcmp(op, "DEC") || !strcmp(op, "NEG")) {
         return parserUnParametro(tok);
     }
+    if (!strcmp(op, "END"))
+    {
+        if (ren->sig) { return PARAMETROS_EXTRA; }
+        return BIEN;
+    }
+    
     return INSTRUCCION_NO_RECONOCIDA;
 }
 

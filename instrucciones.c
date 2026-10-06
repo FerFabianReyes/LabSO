@@ -51,6 +51,10 @@ int ejecutarPrograma(Ejecucion *ejec)
     {
         return dec(instr);
     }
+    if (!strcmp(op, "NEG"))
+    {
+        return neg(instr);
+    }
 
     return INSTRUCCION_NO_RECONOCIDA;
 }
@@ -172,5 +176,18 @@ int dec(Token *param)
     }
 
     *regDestino -= 1;
+    return BIEN;
+}
+
+int neg(Token *param)
+{
+    int *regDestino;
+
+    if (!obtenerRegistro(param->sig->textoToken, reg, &regDestino))
+    {
+        return REGISTRO_INVALIDO;
+    }
+
+   *regDestino = *regDestino * -1;
     return BIEN;
 }

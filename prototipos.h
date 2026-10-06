@@ -47,6 +47,7 @@ int divR(Token *param);//G
 int inc(Token *param);//I
 int dec(Token *param);//G
 int neg(Token *param);
+int mod(Token *param);
 
 /*---------- VENTANAS --------------------------------*/
 int kbhit(void);//F  ----------------

@@ -55,6 +55,10 @@ int ejecutarPrograma(Ejecucion *ejec)
     {
         return neg(instr);
     }
+    if (!strcmp(op, "MOD"))
+    {
+        return mod(instr);
+    }
 
     return INSTRUCCION_NO_RECONOCIDA;
 }
@@ -150,6 +154,21 @@ int divR(Token *param)
     }
 
     *regDestino /= divisor;
+    return BIEN;
+}
+
+int mod(Token *param)
+{
+    int *regDestino;
+    obtenerRegistro(param->sig->textoToken, reg, &regDestino);
+
+    int divisor = obtenerValor(param->sig->sig);
+    if (divisor == 0)
+    {
+        return DIV_ENTRE_CERO;
+    }
+
+    *regDestino %= divisor;
     return BIEN;
 }
 

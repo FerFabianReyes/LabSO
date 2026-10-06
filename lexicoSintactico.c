@@ -40,7 +40,7 @@ int esInstruccion(Token *token)
 {
     char *dato = token->textoToken;
 
-    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|NEG)$")) { return INSTR; }
+    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|NEG|MOD)$")) { return INSTR; }
     if (coincide(dato, "^[a-z]+$")) { return INICIA_MINUSCULA; }
     return esRegistro(token);
 }
@@ -77,7 +77,7 @@ static int verifRenglon(Renglon *ren)
 
     char *op = tok->textoToken;
     if (!strcmp(op, "MOV") || !strcmp(op, "ADD") || !strcmp(op, "SUB") ||
-        !strcmp(op, "MUL") || !strcmp(op, "DIV")) {
+        !strcmp(op, "MUL") || !strcmp(op, "DIV") || !strcmp(op, "MOD")) {
         return parserDosParametros(tok);
     }
     if (!strcmp(op, "INC") || !strcmp(op, "DEC") || !strcmp(op, "NEG")) {

@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
     int EAX;    int EBX;
     int ECX;    int EDX;
+    int ZF;
 } Registros;
 
 extern Registros *reg;

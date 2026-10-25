@@ -7,6 +7,7 @@ Registros *crearRegistro()
     nuevo->EBX = 0;
     nuevo->ECX = 0;
     nuevo->EDX = 0;
+    nuevo->ZF = 0;
     return nuevo;
 }
 
@@ -116,6 +117,8 @@ int mov(Token *param)
     obtenerRegistro(param->sig->textoToken, reg, &regDestino);
 
     *regDestino = obtenerValor(param->sig->sig);
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -125,6 +128,8 @@ int add(Token *param)
     obtenerRegistro(param->sig->textoToken, reg, &regDestino);
 
     *regDestino += obtenerValor(param->sig->sig);
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -134,6 +139,8 @@ int sub(Token *param)
     obtenerRegistro(param->sig->textoToken, reg, &regDestino);
 
     *regDestino -= obtenerValor(param->sig->sig);
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -143,6 +150,8 @@ int mul(Token *param)
     obtenerRegistro(param->sig->textoToken, reg, &regDestino);
 
     *regDestino *= obtenerValor(param->sig->sig);
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -158,6 +167,8 @@ int divR(Token *param)
     }
 
     *regDestino /= divisor;
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -173,6 +184,8 @@ int mod(Token *param)
     }
 
     *regDestino %= divisor;
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -186,6 +199,8 @@ int inc(Token *param)
     }
 
     *regDestino += 1;
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -199,6 +214,8 @@ int dec(Token *param)
     }
 
     *regDestino -= 1;
+    if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }
 
@@ -212,5 +229,7 @@ int neg(Token *param)
     }
 
    *regDestino = *regDestino * -1;
+   if (*regDestino == 0) { reg->ZF = 1; }
+    else { reg->ZF = 0; }
     return BIEN;
 }

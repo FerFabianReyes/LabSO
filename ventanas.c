@@ -1,10 +1,10 @@
 #include "prototipos.h"
 
 /*---------- Columnas de la tabla de datos ---------- */
-#define NUM_COLUMNAS 9
-static const char *encabezado[NUM_COLUMNAS] = {"ID", "Nombre", "PC", "AX", "BX", "CX", "DX", "IR", "Status"};
-static const int pesos[NUM_COLUMNAS]        = { 3,    5,        3,    3,    3,    3,    3,    7,    9 };
-enum { COL_ID, COL_NOMBRE, COL_PC, COL_AX, COL_BX, COL_CX, COL_DX, COL_IR, COL_STATUS };
+#define NUM_COLUMNAS 10
+static const char *encabezado[NUM_COLUMNAS] = {"ID", "Nombre", "PC", "AX", "BX", "CX", "DX", "ZF" , "IR", "Status"};
+static const int pesos[NUM_COLUMNAS]        = { 3,    5,        3,    3,    3,    3,    3,    3,   7,    9 };
+enum { COL_ID, COL_NOMBRE, COL_PC, COL_AX, COL_BX, COL_CX, COL_DX, COL_ZF, COL_IR, COL_STATUS };
 
 
 static int bordeColumna(int i, int anchoTabla)
@@ -153,6 +153,7 @@ void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado)
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_BX,     reg->EBX);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_CX,     reg->ECX);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_DX,     reg->EDX);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ZF,     reg->ZF);
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     ejecucion->IR->texto, 0);
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, mensajeEstatus(resultado), 0);
 

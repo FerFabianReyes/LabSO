@@ -18,7 +18,7 @@ Ejecucion* crearEjecucion(Archivo *prog, char *nombre)
     nueva->id = siguienteId++;
     return nueva;
 }
-
+ 
 Archivo* crearArchivo()
 {
     Archivo *nuevo = malloc(sizeof(Archivo));

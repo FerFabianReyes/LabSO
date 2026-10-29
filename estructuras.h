@@ -28,7 +28,8 @@ typedef struct {
 
 extern Registros *reg;
 
-typedef struct {
+typedef struct Ejecucion{
+    Registros *registro;
     char *nombre;           /* Nombre del proceso */
     Archivo *programa;
     int PC;
@@ -36,6 +37,7 @@ typedef struct {
     int estado;
     int espera;
     int id;
+    Ejecucion *siguiente;
 } Ejecucion;
 
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/

@@ -131,7 +131,7 @@ void impEncabezado(WINDOW *ventana)
 }
 
 /* Agrega una fila a la tabla con el estado despues de ejecutar el renglon */
-void impInstruccVentana(WINDOW *ventana, PCB *proceso, int resultado)
+void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
 {
     static int fila = 4;
     static PCB *ultimaPCB = NULL;

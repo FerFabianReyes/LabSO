@@ -53,7 +53,7 @@ WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);//J
 void impVentanaComandos(WINDOW *ventana);//I
 void limpiarComando(WINDOW *ventana);//G
 void impEncabezado(WINDOW *ventana);//F ------------------
-void impInstruccVentana(WINDOW *ventana, PCB *PCB, int resultado);//J
+void impEjecucion(WINDOW *ventana, PCB *PCB, int resultado);//J
 void limpiarVentana(WINDOW *ventana, char *nomVentana);//I
 
 /*---------- COMANDOS --------------------------------*/

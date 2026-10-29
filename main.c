@@ -43,7 +43,7 @@ int main()
             } else {
                 PCB->espera = 0;
                 int res = ejecutarPrograma(PCB);
-                impInstruccVentana(ventanaEjecucion, PCB, res);
+                impEjecucion(ventanaEjecucion, PCB, res);
 
                 if (PCB->estado == TERMINADO) { PCB->estado = ESPERA;}
                 else if (PCB->IR->sig == NULL)

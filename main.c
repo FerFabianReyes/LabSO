@@ -17,10 +17,10 @@ int main()
     curs_set(0);
     getmaxyx(stdscr, maxY, maxX);
 
-    WINDOW *ventanaEjecucion = crearVentana(maxY*3/5, maxX, 0, " Ejecución ");
-    WINDOW *ventanaListos = crearVentana(maxY/5, maxX, maxY*3/5, " Listos ");
-    WINDOW *ventanaTerminados = crearVentana(maxY/5, maxX, maxY*3/5, " Terminados ");
-    WINDOW *ventanaComandos = crearVentana(maxY/5, maxX, maxY*4/5, " Comandos ");
+    WINDOW *ventanaEjecucion = crearVentana(maxY*8/27, maxX, 0, " Ejecución ");
+    WINDOW *ventanaListos = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
+    WINDOW *ventanaTerminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
+    WINDOW *ventanaComandos = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
     nodelay(ventanaComandos, TRUE);
     keypad(ventanaComandos, TRUE);
     limpiarComando(ventanaComandos);

@@ -67,7 +67,29 @@ void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);//G
 void detectarError(WINDOW *ventana, int error);//F 
 const char *mensajeEstatus(int codigo);//J
 
-/* prototipos.h: I
-  estructuras.h: G*/
+/*------------------------- Posibles funciones ----------------------------------------------*/
+// Estas funciones son como las posibles en las que nos podemos guiar, de preferencia mantenerlas
+// pero si tienen que modificar el tipo de retorno o los parámetros está bien, son sólo como 
+// sugerencias de como podrían ser las funciones en las que vamos a trabajar
+/* COLAS Y CONTEXTO */
+Cola* crearCola(void);
+void  encolar(Cola *c, PCB *p);        /* deja p->siguiente = NULL */
+PCB*  extraer(Cola *c);                /* NULL si está vacía */
+int   colaVacia(Cola *c);
+void  liberarCola(Cola *c);
+void  cargarContexto(PCB *p);          /* *reg  <- p->registro */
+void  guardarContexto(PCB *p);         /* p->registro <- *reg */
+
+/* CARGA DE ARCHIVOS */
+int   cargarArchivo(char *nombre, Cola *listos);   /* BIEN o error; si falla, no encola y libera lo creado */
+void  mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error);
+
+/* COMANDOS */
+int   separarArchivos(char cad[], char *nombres[], int max);  /* regresa cuántos nombres */
+
+/* VENTANAS */
+void  impEjecucion(WINDOW *v, PCB *p, int resultado);
+void  impListos(WINDOW *v, Cola *c);        /* IR y Status en "-" */
+void  impTerminados(WINDOW *v, Cola *c);    /* últimos valores y última instrucción */ 
 
 #endif

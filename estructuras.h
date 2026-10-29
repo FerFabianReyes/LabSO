@@ -40,6 +40,12 @@ typedef struct PCB{
     struct PCB *siguiente;
 } PCB;
 
+typedef struct {
+    PCB *frente;
+    PCB *final;
+    int tamanio;
+} Cola;
+
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/
 typedef enum tipoParametro{
     INSTR = 1, REG_COM, REG, NUM

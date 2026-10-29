@@ -131,29 +131,29 @@ void impEncabezado(WINDOW *ventana)
 }
 
 /* Agrega una fila a la tabla con el estado despues de ejecutar el renglon */
-void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado)
+void impInstruccVentana(WINDOW *ventana, PCB *proceso, int resultado)
 {
     static int fila = 4;
-    static Ejecucion *ultimaEjecucion = NULL;
+    static PCB *ultimaPCB = NULL;
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
     int anchoTabla = maxX - 2;
-    int desp = 1;                           /* la tabla empieza en la columna 1 */
+    int desp = 1;
 
-    if (ultimaEjecucion != ejecucion) {
+    if (ultimaPCB != proceso) {
         fila = 4;
-        ultimaEjecucion = ejecucion;
+        ultimaPCB = proceso;
     }
     if (fila >= maxY - 1) fila = 4;
 
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     ejecucion->id);
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, ejecucion->nombre, 0);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     ejecucion->PC);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     proceso->id);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, proceso->nombre, 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     proceso->PC);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_AX,     reg->EAX);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_BX,     reg->EBX);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_CX,     reg->ECX);
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_DX,     reg->EDX);
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     ejecucion->IR->texto, 0);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     proceso->IR->texto, 0);
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, mensajeEstatus(resultado), 0);
 
     fila++;

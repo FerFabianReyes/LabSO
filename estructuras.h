@@ -37,7 +37,7 @@ typedef struct PCB{
     int estado;
     int espera;
     int id;
-    PCB *siguiente;
+    struct PCB *siguiente;
 } PCB;
 
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/

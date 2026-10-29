@@ -7,12 +7,13 @@ PCB* crearPCB(Archivo *prog, char *nombre)
     char *base = nombre ? strrchr(nombre, '/') : NULL;
     nueva->nombre = strdup(base ? base + 1 : (nombre ? nombre : ""));
 
+    nueva->registro = crearRegistro();
+
     nueva->programa = prog;
     nueva->PC = 0;
     nueva->IR = prog->inicio;
     nueva->estado = ESPERA;
     nueva->espera = 0;
-    reg->EAX = 0; reg->EBX = 0; reg->ECX = 0; reg->EDX = 0;
     static int siguienteId = 0;
     nueva->id = siguienteId++;
     nueva->siguiente = NULL;

@@ -51,6 +51,11 @@ int ejecutarPrograma(Ejecucion *ejec)
     {
         return dec(instr);
     }
+    if (!strcmp(op, "END"))
+    {
+        ejec->estado = TERMINADO;
+        return BIEN;
+    }
 
     return INSTRUCCION_NO_RECONOCIDA;
 }

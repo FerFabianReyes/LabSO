@@ -27,27 +27,27 @@ int main()
 
     reg = crearRegistro();
     Archivo *archivo = crearArchivo();
-    Ejecucion *ejecucion = crearEjecucion(archivo, "");
+    PCB *PCB = crearPCB(archivo, "");
 
     while (1)
     {
         /*---------- Ejecucion de una instruccion ----------*/
-        if (ejecucion->estado == EJECUCION)
+        if (PCB->estado == EJECUCION)
         {
-            if (ejecucion->espera < 125) {
-                ejecucion->espera++;
+            if (PCB->espera < 125) {
+                PCB->espera++;
             } else {
-                ejecucion->espera = 0;
-                int res = ejecutarPrograma(ejecucion);
-                impInstruccVentana(ventanaDatos, ejecucion, res);
+                PCB->espera = 0;
+                int res = ejecutarPrograma(PCB);
+                impInstruccVentana(ventanaDatos, PCB, res);
 
                 if (res != BIEN) { detectarError(ventanaErrores, res); }
-                if (ejecucion->estado == TERMINADO) { ejecucion->estado = ESPERA;}
-                else if (ejecucion->IR->sig == NULL)
+                if (PCB->estado == TERMINADO) { PCB->estado = ESPERA;}
+                else if (PCB->IR->sig == NULL)
                 {
-                    ejecucion->estado = TERMINADO;
-                    ejecucion->estado = ESPERA;
-                } else { ejecucion->IR = ejecucion->IR->sig; }
+                    PCB->estado = TERMINADO;
+                    PCB->estado = ESPERA;
+                } else { PCB->IR = PCB->IR->sig; }
             }
         }
 
@@ -78,9 +78,9 @@ int main()
                 if (comando == EJECUTAR_ARCHIVO) {
                     char *nomArchivo = sacarNomArchivo(cad);
 
-                    liberarEjecucion(ejecucion);
+                    liberarPCB(PCB);
                     archivo = crearArchivo();
-                    ejecucion = crearEjecucion(archivo, nomArchivo);
+                    PCB = crearPCB(archivo, nomArchivo);
                     limpiarVentana(ventanaDatos, " Datos ");
                     impEncabezado(ventanaDatos);
 
@@ -93,10 +93,10 @@ int main()
                     if (res != BIEN) {
                         detectarError(ventanaErrores, res);
                     } else {
-                        ejecucion->IR = archivo->inicio;
-                        ejecucion->PC = 0;
-                        ejecucion->espera = 0;
-                        ejecucion->estado = EJECUCION;
+                        PCB->IR = archivo->inicio;
+                        PCB->PC = 0;
+                        PCB->espera = 0;
+                        PCB->estado = EJECUCION;
                     }
                 } else {
                     detectarError(ventanaErrores, comando);
@@ -112,7 +112,7 @@ int main()
     delwin(ventanaDatos);
     delwin(ventanaErrores);
     delwin(ventanaComandos);
-    liberarEjecucion(ejecucion);
+    liberarPCB(PCB);
     free(reg);
     endwin();
     return 0;

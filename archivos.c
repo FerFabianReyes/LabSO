@@ -1,10 +1,9 @@
 #include "prototipos.h"
 
-Ejecucion* crearEjecucion(Archivo *prog, char *nombre)
+PCB* crearPCB(Archivo *prog, char *nombre)
 {
-    Ejecucion *nueva = malloc(sizeof(Ejecucion));
+    PCB *nueva = malloc(sizeof(PCB));
 
-    /* Solo se guarda el nmbre del archivo, sin la ruta (pruebas/a.asm -> a.asm) */
     char *base = nombre ? strrchr(nombre, '/') : NULL;
     nueva->nombre = strdup(base ? base + 1 : (nombre ? nombre : ""));
 
@@ -16,6 +15,7 @@ Ejecucion* crearEjecucion(Archivo *prog, char *nombre)
     reg->EAX = 0; reg->EBX = 0; reg->ECX = 0; reg->EDX = 0;
     static int siguienteId = 0;
     nueva->id = siguienteId++;
+    nueva->siguiente = NULL;
     return nueva;
 }
  
@@ -65,7 +65,7 @@ void liberarArchivo(Archivo *archivo)
     free(archivo);
 }
 
-void liberarEjecucion(Ejecucion *ejec)
+void liberarPCB(PCB *ejec)
 {
     if (!ejec) { return; }
     liberarArchivo(ejec->programa);

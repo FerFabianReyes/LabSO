@@ -28,7 +28,7 @@ typedef struct {
 
 extern Registros *reg;
 
-typedef struct Ejecucion{
+typedef struct PCB{
     Registros *registro;
     char *nombre;           /* Nombre del proceso */
     Archivo *programa;
@@ -37,8 +37,8 @@ typedef struct Ejecucion{
     int estado;
     int espera;
     int id;
-    Ejecucion *siguiente;
-} Ejecucion;
+    PCB *siguiente;
+} PCB;
 
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/
 typedef enum tipoParametro{

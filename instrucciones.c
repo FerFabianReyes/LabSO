@@ -10,7 +10,7 @@ Registros *crearRegistro()
     return nuevo;
 }
 
-int ejecutarPrograma(Ejecucion *ejec)
+int ejecutarPrograma(PCB *ejec)
 {
     Renglon *ren = ejec->IR;
     ejec->PC++;

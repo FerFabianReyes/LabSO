@@ -14,8 +14,8 @@ Renglon* crearRenglon(char *texto); // J
 void agregarRenglon(Archivo *archivo, char *texto); // I
 void liberarArchivo(Archivo *archivo); // G
 int leerArchivo(char *nomArchivo, Archivo *archivo); // F
-Ejecucion* crearEjecucion(Archivo *prog, char *nombre); //J
-void liberarEjecucion(Ejecucion *ejec); // I
+PCB* crearPCB(Archivo *prog, char *nombre); //J
+void liberarPCB(PCB *ejec); // I
 
 /*---------- TOKENS --------------------------------*/
 int tokenizar(Archivo *archivo); //G
@@ -36,7 +36,7 @@ int verifEspacios(char *texto);// ----------------------
 
 /*---------- INSTRUCCIONES --------------------------------*/
 Registros* crearRegistro();//G
-int ejecutarPrograma(Ejecucion *ejec);//F -----------------
+int ejecutarPrograma(PCB *ejec);//F -----------------
 int obtenerRegistro(char nombre[], Registros *registros, int **registro);//J
 int obtenerValor(Token *tok);//I
 int mov(Token *param);//G
@@ -53,7 +53,7 @@ WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);//J
 void impVentanaComandos(WINDOW *ventana);//I
 void limpiarComando(WINDOW *ventana);//G
 void impEncabezado(WINDOW *ventana);//F ------------------
-void impInstruccVentana(WINDOW *ventana, Ejecucion *ejecucion, int resultado);//J
+void impInstruccVentana(WINDOW *ventana, PCB *PCB, int resultado);//J
 void limpiarVentana(WINDOW *ventana, char *nomVentana);//I
 
 /*---------- COMANDOS --------------------------------*/

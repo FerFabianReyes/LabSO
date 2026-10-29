@@ -38,11 +38,6 @@ typedef struct {
     int id;
 } Ejecucion;
 
-typedef struct {
-    Ejecucion *inicio;
-    Ejecucion *sig;
-} Estado;
-
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/
 typedef enum tipoParametro{
     INSTR = 1, REG_COM, REG, NUM

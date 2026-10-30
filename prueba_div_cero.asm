@@ -1,0 +1,3 @@
+MOV AX,10
+DIV AX,0
+END

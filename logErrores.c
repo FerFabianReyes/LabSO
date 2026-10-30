@@ -102,3 +102,24 @@ const char *mensajeEstatus(int codigo)
     default:                        return "Error";
     }
 }
+
+/* Muestra el error asociado a un archivo directamente en la ventana Comandos. */
+void mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error)
+{
+    if (!cmd) { return; }
+
+    limpiarVentana(cmd, " Comandos ");
+    if (!nombre) { nombre = "(nombre desconocido)"; }
+
+    int maxY, maxX;
+    getmaxyx(cmd, maxY, maxX);
+    if (maxY < 2 || maxX < 10) {
+        wrefresh(cmd);
+        return;
+    }
+
+    const char *detalle = mensajeEstatus(error);
+    mvwprintw(cmd, 1, 1, "Archivo %.*s: error %d - %.*s",
+              maxX / 3, nombre, error, maxX / 2, detalle ? detalle : "Error");
+    wrefresh(cmd);
+}

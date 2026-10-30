@@ -1,0 +1,3 @@
+MOV AX,4
+INC AX
+ADD AX,6

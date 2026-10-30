@@ -1,0 +1,3 @@
+MOV AX,2.5
+ADD AX,2
+END

@@ -44,3 +44,21 @@ Comandos dentro del programa:
 - Las funciones van en archivos .c; en los .h solo van prototipos,
   estructuras y constantes.
 - Cada cambio en su propia rama de Git 
+
+
+## Colas y contexto de procesos
+
+El archivo `colas.c` implementa las operaciones FIFO `crearCola`, `encolar`,
+`extraer`, `colaVacia` y `liberarCola`. Cada PCB utiliza su campo `siguiente`
+para enlazarse y debe pertenecer a una sola cola a la vez.
+
+`cargarContexto(PCB *)` copia los registros guardados en el PCB hacia `reg`
+(registros activos de CPU). `guardarContexto(PCB *)` realiza la copia inversa.
+La memoria de registros reservada para cada PCB se libera en `liberarPCB`.
+
+Para ejecutar la prueba independiente de colas y contexto:
+
+    make test-colas
+
+La prueba crea dos PCB de ejemplo, comprueba el orden FIFO, verifica la carga
+y el guardado del contexto y comprueba que una cola vacía devuelva `NULL`.

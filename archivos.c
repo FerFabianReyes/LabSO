@@ -71,6 +71,8 @@ void liberarPCB(PCB *ejec)
     if (!ejec) { return; }
     liberarArchivo(ejec->programa);
     free(ejec->nombre);
+    free(ejec->registro);
+    ejec->registro = NULL;
     free(ejec);
 }
 

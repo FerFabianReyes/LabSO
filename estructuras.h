@@ -21,6 +21,10 @@ typedef struct {
     int tamanio;
 } Archivo;
 
+/*
+ * Banco de registros activo de la CPU.
+ * La variable global `reg` apunta al contexto que se está ejecutando.
+ */
 typedef struct {
     int EAX;    int EBX;
     int ECX;    int EDX;
@@ -28,6 +32,10 @@ typedef struct {
 
 extern Registros *reg;
 
+/*
+ * Cada PCB conserva una copia propia de sus registros.
+ * `siguiente` enlaza el PCB con el siguiente elemento de una cola FIFO.
+ */
 typedef struct PCB{
     Registros *registro;
     char *nombre;           /* Nombre del proceso */
@@ -40,6 +48,10 @@ typedef struct PCB{
     struct PCB *siguiente;
 } PCB;
 
+/*
+ * Cola FIFO de PCB. Los propios PCB forman los nodos mediante `siguiente`;
+ * por ello, un mismo PCB no puede estar simultaneamente en dos colas.
+ */
 typedef struct {
     PCB *frente;
     PCB *final;

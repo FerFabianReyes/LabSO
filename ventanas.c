@@ -159,3 +159,69 @@ void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
     fila++;
     wrefresh(ventana);
 }
+
+static void limpiarFilas(WINDOW *ventana) {
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    for (int fila = FILA_INICIAL; fila < maxY - 1; fila++) {
+        mvwhline(ventana, fila, 1, ' ', maxX - 2);
+    }
+}
+
+static void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
+                            PCB *p, const char *ir, const char *status) {
+    int desp = 1;
+    Registros *r = p->registro;
+
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     p->id);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, p->nombre, 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     p->PC);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_AX,     r ? r->EAX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_BX,     r ? r->EBX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_CX,     r ? r->ECX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_DX,     r ? r->EDX : 0);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     ir, 0);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, status, 0);
+}
+
+static void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    int anchoTabla = maxX - 2;
+    int disponibles = maxY - 1 - FILA_INICIAL;
+
+    limpiarFilas(ventana);
+
+    if (cola && disponibles > 0) {
+        int total = cola->tamanio;
+        int mostrar = (total > disponibles) ? disponibles - 1 : total;
+        int fila = FILA_INICIAL;
+        PCB *p = cola->frente;
+
+        for (int i = 0; i < mostrar && p; i++, p = p->siguiente) {
+            const char *ir = "-";
+            const char *status = "-";
+            if (terminados) {
+                ir = p->IR ? p->IR->texto : "-";
+                status = "Terminado";
+            }
+            imprimirFilaPCB(ventana, fila++, anchoTabla, p, ir, status);
+        }
+
+        if (total > mostrar) {
+            mvwprintw(ventana, fila, 2, "... y %d mas", total - mostrar);
+        }
+    }
+
+    wrefresh(ventana);
+}
+
+void impListos(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, 0);
+}
+
+void impTerminados(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, 1);
+}

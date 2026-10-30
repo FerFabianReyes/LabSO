@@ -91,9 +91,9 @@ int   separarArchivos(char cad[], char *nombres[], int max);  /* regresa cuánto
 /* VENTANAS */
 void  impListos(WINDOW *v, Cola *c);        /* IR y Status en "-" */
 void  impTerminados(WINDOW *v, Cola *c);    /* últimos valores y última instrucción */ 
-static void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
-static void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
-static void limpiarFilas(WINDOW *ventana);
+void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
+void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
+void limpiarFilas(WINDOW *ventana);
 
 
 

@@ -160,7 +160,7 @@ void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
     wrefresh(ventana);
 }
 
-static void limpiarFilas(WINDOW *ventana) {
+void limpiarFilas(WINDOW *ventana) {
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
     for (int fila = FILA_INICIAL; fila < maxY - 1; fila++) {
@@ -168,7 +168,7 @@ static void limpiarFilas(WINDOW *ventana) {
     }
 }
 
-static void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
+void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
                             PCB *p, const char *ir, const char *status) {
     int desp = 1;
     Registros *r = p->registro;
@@ -184,7 +184,7 @@ static void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, status, 0);
 }
 
-static void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
+void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
     int anchoTabla = maxX - 2;
@@ -193,23 +193,19 @@ static void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
     limpiarFilas(ventana);
 
     if (cola && disponibles > 0) {
-        int total = cola->tamanio;
-        int mostrar = (total > disponibles) ? disponibles - 1 : total;
         int fila = FILA_INICIAL;
-        PCB *p = cola->frente;
 
-        for (int i = 0; i < mostrar && p; i++, p = p->siguiente) {
+        for (PCB *p = cola->frente; p; p = p->siguiente) {
+            if (fila >= maxY - 1) { fila = FILA_INICIAL; }  
+
             const char *ir = "-";
             const char *status = "-";
             if (terminados) {
                 ir = p->IR ? p->IR->texto : "-";
                 status = "Terminado";
             }
-            imprimirFilaPCB(ventana, fila++, anchoTabla, p, ir, status);
-        }
-
-        if (total > mostrar) {
-            mvwprintw(ventana, fila, 2, "... y %d mas", total - mostrar);
+            imprimirFilaPCB(ventana, fila, anchoTabla, p, ir, status);
+            fila++;
         }
     }
 

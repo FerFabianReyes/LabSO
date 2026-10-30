@@ -17,13 +17,17 @@ int main()
     curs_set(0);
     getmaxyx(stdscr, maxY, maxX);
 
-    WINDOW *ventanaDatos = crearVentana(maxY*3/5, maxX, 0, " Datos ");
-    WINDOW *ventanaErrores = crearVentana(maxY/5, maxX, maxY*3/5, " Errores ");
-    WINDOW *ventanaComandos = crearVentana(maxY/5, maxX, maxY*4/5, " Comandos ");
+    WINDOW *ventanaEjecucion = crearVentana(maxY*8/27, maxX, 0, " Ejecución ");
+    WINDOW *ventanaListos = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
+    WINDOW *ventanaTerminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
+    WINDOW *ventanaComandos = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
     nodelay(ventanaComandos, TRUE);
     keypad(ventanaComandos, TRUE);
     limpiarComando(ventanaComandos);
-    impEncabezado(ventanaDatos);
+    impEncabezado(ventanaEjecucion);
+    impEncabezado(ventanaListos);
+    impEncabezado(ventanaTerminados);
+
 
     reg = crearRegistro();
     Archivo *archivo = crearArchivo();
@@ -39,9 +43,8 @@ int main()
             } else {
                 PCB->espera = 0;
                 int res = ejecutarPrograma(PCB);
-                impInstruccVentana(ventanaDatos, PCB, res);
+                impEjecucion(ventanaEjecucion, PCB, res);
 
-                if (res != BIEN) { detectarError(ventanaErrores, res); }
                 if (PCB->estado == TERMINADO) { PCB->estado = ESPERA;}
                 else if (PCB->IR->sig == NULL)
                 {
@@ -69,7 +72,6 @@ int main()
                 leyendo = 0;
                 curs_set(0);
 
-                limpiarVentana(ventanaErrores, " Errores ");
                 limpiarComando(ventanaComandos);
                 int comando = detectarComando(cad);
 
@@ -81,8 +83,8 @@ int main()
                     liberarPCB(PCB);
                     archivo = crearArchivo();
                     PCB = crearPCB(archivo, nomArchivo);
-                    limpiarVentana(ventanaDatos, " Datos ");
-                    impEncabezado(ventanaDatos);
+                    limpiarVentana(ventanaEjecucion, " Datos ");
+                    impEncabezado(ventanaEjecucion);
 
                     /* Solo se detiene si el archivo no existe o esta vacio.
                        Los errores de casa renglon se muestran al ejecutarlo. */
@@ -90,17 +92,13 @@ int main()
                     if (res == BIEN) { res = tokenizar(archivo); }
                     if (res == BIEN) { res = verifSintaxis(archivo); }
 
-                    if (res != BIEN) {
-                        detectarError(ventanaErrores, res);
-                    } else {
+                    if (res == BIEN) {
                         PCB->IR = archivo->inicio;
                         PCB->PC = 0;
                         PCB->espera = 0;
                         PCB->estado = EJECUCION;
-                    }
-                } else {
-                    detectarError(ventanaErrores, comando);
-                }
+                    } 
+                } 
             } else {
                 leerComando(ventanaComandos, &pos, cad, caracter);
             }
@@ -109,8 +107,9 @@ int main()
         napms(16);
     }
 
-    delwin(ventanaDatos);
-    delwin(ventanaErrores);
+    delwin(ventanaEjecucion);
+    delwin(ventanaListos);
+    delwin(ventanaTerminados);
     delwin(ventanaComandos);
     liberarPCB(PCB);
     free(reg);

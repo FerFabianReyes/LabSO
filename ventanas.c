@@ -131,7 +131,7 @@ void impEncabezado(WINDOW *ventana)
 }
 
 /* Agrega una fila a la tabla con el estado despues de ejecutar el renglon */
-void impInstruccVentana(WINDOW *ventana, PCB *proceso, int resultado)
+void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
 {
     static int fila = 4;
     static PCB *ultimaPCB = NULL;
@@ -158,4 +158,66 @@ void impInstruccVentana(WINDOW *ventana, PCB *proceso, int resultado)
 
     fila++;
     wrefresh(ventana);
+}
+
+void limpiarFilas(WINDOW *ventana) {
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    for (int fila = FILA_INICIAL; fila < maxY - 1; fila++) {
+        mvwhline(ventana, fila, 1, ' ', maxX - 2);
+    }
+}
+
+void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
+                            PCB *p, const char *ir, const char *status) {
+    int desp = 1;
+    Registros *r = p->registro;
+
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     p->id);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, p->nombre, 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     p->PC);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_AX,     r ? r->EAX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_BX,     r ? r->EBX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_CX,     r ? r->ECX : 0);
+    imprimirNumero(ventana, fila, desp, anchoTabla, COL_DX,     r ? r->EDX : 0);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     ir, 0);
+    imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, status, 0);
+}
+
+void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    int anchoTabla = maxX - 2;
+    int disponibles = maxY - 1 - FILA_INICIAL;
+
+    limpiarFilas(ventana);
+
+    if (cola && disponibles > 0) {
+        int fila = FILA_INICIAL;
+
+        for (PCB *p = cola->frente; p; p = p->siguiente) {
+            if (fila >= maxY - 1) { fila = FILA_INICIAL; }  
+
+            const char *ir = "-";
+            const char *status = "-";
+            if (terminados) {
+                ir = p->IR ? p->IR->texto : "-";
+                status = "Terminado";
+            }
+            imprimirFilaPCB(ventana, fila, anchoTabla, p, ir, status);
+            fila++;
+        }
+    }
+
+    wrefresh(ventana);
+}
+
+void impListos(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, 0);
+}
+
+void impTerminados(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, 1);
 }

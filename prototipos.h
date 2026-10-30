@@ -7,6 +7,7 @@
 #include <curses.h>
 #include <sys/select.h>
 #include "estructuras.h"
+#define FILA_INICIAL 4
 
 /*---------- ARCHIVOS --------------------------------*/
 Archivo* crearArchivo(); // F
@@ -53,7 +54,7 @@ WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);//J
 void impVentanaComandos(WINDOW *ventana);//I
 void limpiarComando(WINDOW *ventana);//G
 void impEncabezado(WINDOW *ventana);//F ------------------
-void impInstruccVentana(WINDOW *ventana, PCB *PCB, int resultado);//J
+void impEjecucion(WINDOW *ventana, PCB *PCB, int resultado);//J
 void limpiarVentana(WINDOW *ventana, char *nomVentana);//I
 
 /*---------- COMANDOS --------------------------------*/
@@ -88,8 +89,12 @@ void  mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error);
 int   separarArchivos(char cad[], char *nombres[], int max);  /* regresa cuántos nombres */
 
 /* VENTANAS */
-void  impEjecucion(WINDOW *v, PCB *p, int resultado);
 void  impListos(WINDOW *v, Cola *c);        /* IR y Status en "-" */
 void  impTerminados(WINDOW *v, Cola *c);    /* últimos valores y última instrucción */ 
+void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
+void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
+void limpiarFilas(WINDOW *ventana);
+
+
 
 #endif

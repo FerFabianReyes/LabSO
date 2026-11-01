@@ -67,7 +67,6 @@ void borrarCaracter(WINDOW *ventana, int *pos);//I
 void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);//G
 
 /* --------- LOG ERRORES ----------------------------*/
-void detectarError(WINDOW *ventana, int error);//F 
 const char *mensajeEstatus(int codigo);//J
 
 /*------------------------- Posibles funciones ----------------------------------------------*/

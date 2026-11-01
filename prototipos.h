@@ -8,6 +8,8 @@
 #include <sys/select.h>
 #include "estructuras.h"
 #define FILA_INICIAL 4
+#define TAM_COMANDO   256
+#define MAX_ARCHIVOS  16
 
 /*---------- ARCHIVOS --------------------------------*/
 Archivo* crearArchivo(); // F
@@ -95,6 +97,10 @@ void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
 void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
 void limpiarFilas(WINDOW *ventana);
 
+
+/* Nuevos prototipos*/
+void mostrarErroresCarga(WINDOW *cmd, char *nombres[], int errores[], int n);
+void mostrarErrorComando(WINDOW *cmd, int error);
 
 
 #endif

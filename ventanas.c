@@ -133,18 +133,27 @@ void impEncabezado(WINDOW *ventana)
 /* Agrega una fila a la tabla con el estado despues de ejecutar el renglon */
 void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
 {
-    static int fila = 4;
+    static int fila = FILA_INICIAL;
     static PCB *ultimaPCB = NULL;
+    static int ultimoId = -1;
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
+    if (maxY <= FILA_INICIAL || maxX <= 2 || !proceso) { return; }
     int anchoTabla = maxX - 2;
     int desp = 1;
 
-    if (ultimaPCB != proceso) {
-        fila = 4;
+    /* Cada proceso comienza desde la primera fila de datos. También se
+       compara el ID por si el asignador reutiliza la dirección del PCB. */
+    if (ultimaPCB != proceso || (proceso && ultimoId != proceso->id)) {
+        limpiarFilas(ventana);
+        fila = FILA_INICIAL;
         ultimaPCB = proceso;
+        ultimoId = proceso ? proceso->id : -1;
     }
-    if (fila >= maxY - 1) fila = 4;
+    if (fila >= maxY - 1) {
+        fila = FILA_INICIAL;
+        mvwhline(ventana, fila, 1, ' ', maxX - 2);
+    }
 
     imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     proceso->id);
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, proceso->nombre, 0);
@@ -163,6 +172,7 @@ void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
 void limpiarFilas(WINDOW *ventana) {
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
+    if (maxX <= 2 || maxY <= FILA_INICIAL) { return; }
     for (int fila = FILA_INICIAL; fila < maxY - 1; fila++) {
         mvwhline(ventana, fila, 1, ' ', maxX - 2);
     }

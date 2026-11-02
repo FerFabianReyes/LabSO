@@ -45,6 +45,22 @@ int main()
                 int res = ejecutarPrograma(PCB);
                 impEjecucion(ventanaEjecucion, PCB, res);
 
+                /* Redibujar Ejecución puede mover el cursor físico de curses.
+                   Si se está escribiendo un comando, devolverlo a Comandos. */
+                if (leyendo) {
+                    int altoComandos, anchoComandos;
+                    getmaxyx(ventanaComandos, altoComandos, anchoComandos);
+                    (void)altoComandos;
+                    if (anchoComandos > 2) {
+                        int columnaCursor = pos + 4;
+                        if (columnaCursor >= anchoComandos - 1) {
+                            columnaCursor = anchoComandos - 2;
+                        }
+                        wmove(ventanaComandos, 1, columnaCursor);
+                        wrefresh(ventanaComandos);
+                    }
+                }
+
                 if (PCB->estado == TERMINADO) { PCB->estado = ESPERA;}
                 else if (PCB->IR->sig == NULL)
                 {

@@ -18,12 +18,18 @@ void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter)
 
 void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter)
 {
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    (void)maxY;
+    int limite = maxX - 6;                     /* no pasar del borde derecho */
+    if (limite > TAM_COMANDO - 1) { limite = TAM_COMANDO - 1; }
+
     wmove(ventana, 1, (*pos)+4);
     wrefresh(ventana);
 
     if (caracter == KEY_BACKSPACE || caracter == 127) {
         if (*pos > 0) { borrarCaracter(ventana, pos); }
-    } else if (caracter >= 32 && caracter < 127 && *pos < 48) {
+    } else if (caracter >= 32 && caracter < 127 && *pos < limite) {
         imprimirCaracter(ventana, pos, cad, caracter);
     }
 }
@@ -41,7 +47,7 @@ int detectarComando(char cad[])
     if (strcmp(cad, "salir") == 0) { return SALIR; }
 
     regex_t regex;
-    char *patron = "^ejecutar[[:space:]]+[^[:space:]]+$";
+    char *patron = "^ejecutar([[:space:]]+[^[:space:]]+)+$";
     int resultado = regcomp(&regex, patron, REG_EXTENDED | REG_NOSUB);
     if (resultado != 0) return COMANDO_INVALIDO;
     resultado = regexec(&regex, cad, 0, NULL, 0);
@@ -58,4 +64,16 @@ char *sacarNomArchivo(char cad[])
     if (!nomArchivo) { return NULL; }
     while (*nomArchivo == ' ' || *nomArchivo == '\t') nomArchivo++;
     return nomArchivo;
+}
+
+int separarArchivos(char cad[], char *nombres[], int max)
+{
+    int n = 0;
+    char *delim;
+    strtok_r(cad, " \t", &delim);                 /* salta "ejecutar" */
+    char *palabra;
+    while (n < max && (palabra = strtok_r(NULL, " \t", &delim)) != NULL) {
+        nombres[n++] = palabra;
+    }
+    return n;
 }

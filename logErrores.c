@@ -38,11 +38,13 @@ static void mostrarLineaComandos(WINDOW *cmd, const char *mensaje)
     getmaxyx(cmd, maxY, maxX);
     if (maxY < 2 || maxX < 3) { return; }
 
-    mvwmove(cmd, 1, 1);
+    wmove(cmd, 1, 1);
     wclrtoeol(cmd);
     if (mensaje) {
         mvwprintw(cmd, 1, 1, "%.*s", maxX - 2, mensaje);
     }
+    box(cmd, 0, 0);                        /* wclrtoeol borró el borde derecho */
+    mvwprintw(cmd, 0, 2, " Comandos ");    /* box tapa el título */
     wrefresh(cmd);
 }
 

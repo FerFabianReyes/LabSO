@@ -1,4 +1,5 @@
 #include "prototipos.h"
+#include <errno.h>
 
 PCB* crearPCB(Archivo *prog, char *nombre)
 {
@@ -98,8 +99,12 @@ int leerArchivo(char *nomArchivo, Archivo *archivo)
     char *ren = NULL;
     size_t tamanio = 0;
 
+    errno = 0;
     FILE *arch = fopen(nomArchivo, "r");
-    if (arch == NULL) { return NOMBRE_INCORRECTO; }
+    if (arch == NULL) {
+        return (errno == ENOENT || errno == ENOTDIR)
+                   ? NOMBRE_INCORRECTO : NO_HAY_ARCHIVO;
+    }
 
     ssize_t leidos;
     while ((leidos = getline(&ren, &tamanio, arch)) != -1) {
@@ -118,7 +123,11 @@ int leerArchivo(char *nomArchivo, Archivo *archivo)
     return errorLectura ? NO_HAY_ARCHIVO : BIEN;
 }
 
-/* Carga transaccional: solo encola el PCB cuando todas las etapas validan. */
+/*
+ * Carga el archivo y crea su PCB. Los errores léxicos/sintácticos de cada
+ * renglón se conservan en Renglon.error: se reportan en Status al ejecutar,
+ * pero no impiden que el proceso entre a la cola de Listos.
+ */
 int cargarArchivo(char *nombre, Cola *listos)
 {
     if (!nombre || !*nombre) { return NOMBRE_INCORRECTO; }
@@ -130,16 +139,6 @@ int cargarArchivo(char *nombre, Cola *listos)
     int resultado = leerArchivo(nombre, archivo);
     if (resultado == BIEN) { resultado = tokenizar(archivo); }
     if (resultado == BIEN) { resultado = verifSintaxis(archivo); }
-
-    /* Los errores léxicos y sintácticos se almacenan por renglón. */
-    if (resultado == BIEN) {
-        for (Renglon *r = archivo->inicio; r; r = r->sig) {
-            if (r->error != BIEN) {
-                resultado = r->error;
-                break;
-            }
-        }
-    }
 
     if (resultado != BIEN) {
         liberarArchivo(archivo);

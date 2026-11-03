@@ -1,88 +1,14 @@
 #include "prototipos.h"
 
-void detectarError(WINDOW *ventana, int error)
-{
-    limpiarVentana(ventana, " Errores ");
-    switch (error)
-    {
-    case BIEN:
-        break;
-    /*-- Archivos --*/
-    case NOMBRE_INCORRECTO:
-        mvwprintw(ventana, 2, 1, " Error %d: Archivo no encontrado. Favor de verificar el nombre", error);
-        break;
-    case NO_HAY_ARCHIVO:
-        mvwprintw(ventana, 2, 1, " Error %d: No se pudo abrir el archivo", error);
-        break;
-    case NO_HAY_TEXTO:
-        mvwprintw(ventana, 2, 1, " Error %d: El archivo está vacío", error);
-        break;
-
-    /*-- Tokens --*/
-    case NO_HAY_TOKENS:
-        mvwprintw(ventana, 2, 1, " Error %d: No se encontraron tokens", error);
-        break;
-    case LINEA_VACIA:
-        mvwprintw(ventana, 2, 1, " Error %d: Se encontró una línea vacía", error);
-        break;
-
-    /*-- Léxico --*/
-    case TIPO_PARAM_INVALIDO:
-        mvwprintw(ventana, 2, 1, " Error %d: Los parámetros que se ingresaron son inválidos, favor de verificar", error);
-        break;
-    case INICIA_MINUSCULA:
-        mvwprintw(ventana, 2, 1, " Error %d: No se permiten instrucciones ni parámetros en minúsculas", error);
-        break;
-    case REGISTRO_INVALIDO:
-        mvwprintw(ventana, 2, 1, " Error %d: Sólo se permiten los registros AX, BX, CX y DX en mayúsculas", error);
-        break;
-    case NUM_DECIMAL:
-        mvwprintw(ventana, 2, 1, " Error %d: No se permite ingresar números decimales", error);
-        break;
-
-    /*-- Sintáctico --*/
-    case INSTR_REG_INCUMPLIDA:
-        mvwprintw(ventana, 2, 1, " Error %d: Revise los parámetros después de las instrucciones", error);
-        break;
-    case PARAMETROS_INCORRECTOS:
-        mvwprintw(ventana, 2, 1, " Error %d: Se detectaron instrucciones con parámetros incorrectos", error);
-        break;
-    case PARAMETROS_INSUFICIENTES:
-        mvwprintw(ventana, 2, 1, " Error %d: Se detectaron instrucciones con parámetros insuficientes", error);
-        break;
-    case PARAMETROS_EXTRA:
-        mvwprintw(ventana, 2, 1, " Error %d: Se detectaron instrucciones con parámetros extra", error);
-        break;
-    case DIV_ENTRE_CERO:
-        mvwprintw(ventana, 2, 1, " Error %d: No se puede dividir entre cero", error);
-        break;
-    case ESPACIOS_EXTRA:
-        mvwprintw(ventana, 2, 1, " Error %d: Espacios de más o tabulaciones en la instrucción", error);
-        break;
-    case COMA_CON_ESPACIOS:
-        mvwprintw(ventana, 2, 1, " Error %d: No se permiten espacios antes ni después de la coma", error);
-        break;
-    case INSTRUCCION_NO_RECONOCIDA:
-        mvwprintw(ventana, 2, 1, " Error %d: Operación no reconocida", error);
-        break;
-
-    /*-- Comandos --*/
-    case COMANDO_INVALIDO:
-        mvwprintw(ventana, 2, 1, " Error %d: El comando que ingresó es inválido. Favor de verificar", error);
-        break;
-
-    default:
-        mvwprintw(ventana, 2, 1, " Error %d: Error desconocido", error);
-        break;
-    }
-    wrefresh(ventana);
-}
-
 const char *mensajeEstatus(int codigo)
 {
     switch (codigo)
     {
     case BIEN:                      return "OK";
+    case NOMBRE_INCORRECTO:         return "no encontrado";
+    case NO_HAY_ARCHIVO:            return "no se pudo abrir";
+    case NO_HAY_TEXTO:              return "vacío";
+    case COMANDO_INVALIDO:          return "comando inválido";
     case LINEA_VACIA:               return "Linea vacia";
     case INSTRUCCION_NO_RECONOCIDA: return "Op. desconocida";
     case DIV_ENTRE_CERO:            return "Div. entre 0";
@@ -103,23 +29,66 @@ const char *mensajeEstatus(int codigo)
     }
 }
 
-/* Muestra el error asociado a un archivo directamente en la ventana Comandos. */
-void mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error)
+/* Limpia la fila de salida y escribe un mensaje limitado al ancho visible. */
+static void mostrarLineaComandos(WINDOW *cmd, const char *mensaje)
 {
     if (!cmd) { return; }
 
-    limpiarVentana(cmd, " Comandos ");
-    if (!nombre) { nombre = "(nombre desconocido)"; }
+    int maxY, maxX;
+    getmaxyx(cmd, maxY, maxX);
+    if (maxY < 2 || maxX < 3) { return; }
+
+    wmove(cmd, 1, 1);
+    wclrtoeol(cmd);
+    if (mensaje) {
+        mvwprintw(cmd, 1, 1, "%.*s", maxX - 2, mensaje);
+    }
+    box(cmd, 0, 0);                        /* wclrtoeol borró el borde derecho */
+    mvwprintw(cmd, 0, 2, " Comandos ");    /* box tapa el título */
+    wrefresh(cmd);
+}
+
+/* Muestra solo los archivos fallidos, conservando su orden de entrada. */
+void mostrarErroresCarga(WINDOW *cmd, char *nombres[], int errores[], int n)
+{
+    if (!cmd) { return; }
 
     int maxY, maxX;
     getmaxyx(cmd, maxY, maxX);
-    if (maxY < 2 || maxX < 10) {
-        wrefresh(cmd);
-        return;
+    if (maxY < 2 || maxX < 3) { return; }
+
+    char linea[4096] = "";
+    size_t usados = 0;
+    for (int i = 0; i < n; i++) {
+        if (!errores || errores[i] == BIEN) { continue; }
+        const char *nombre = (nombres && nombres[i]) ? nombres[i] : "(sin nombre)";
+        const char *detalle = mensajeEstatus(errores[i]);
+        int escritos = snprintf(linea + usados, sizeof(linea) - usados,
+                                "%s%s: %s",
+                                usados ? " | " : "", nombre,
+                                detalle ? detalle : "Error");
+        if (escritos < 0 || (size_t)escritos >= sizeof(linea) - usados) {
+            usados = sizeof(linea) - 1;
+            break;
+        }
+        usados += (size_t)escritos;
     }
 
-    const char *detalle = mensajeEstatus(error);
-    mvwprintw(cmd, 1, 1, "Archivo %.*s: error %d - %.*s",
-              maxX / 3, nombre, error, maxX / 2, detalle ? detalle : "Error");
-    wrefresh(cmd);
+    mostrarLineaComandos(cmd, linea);
+}
+
+/* Compatibilidad para el caso de un solo archivo. */
+void mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error)
+{
+    char *nombres[] = { nombre };
+    int errores[] = { error };
+    mostrarErroresCarga(cmd, nombres, errores, 1);
+}
+
+/* Muestra el error de comando en la misma fila de salida de Comandos. */
+void mostrarErrorComando(WINDOW *cmd, int error)
+{
+    char linea[128];
+    snprintf(linea, sizeof(linea), "Comando: %s", mensajeEstatus(error));
+    mostrarLineaComandos(cmd, linea);
 }

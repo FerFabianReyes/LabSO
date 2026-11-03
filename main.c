@@ -105,16 +105,20 @@ int main()
                 if (comando == SALIR) { break; }
 
                 if (comando == EJECUTAR_ARCHIVO) {
-                    char *nomArchivo = sacarNomArchivo(cad);
-                    int res = cargarArchivo(nomArchivo, listos);
+                    char *nombres[MAX_ARCHIVOS];
+                    int errores[MAX_ARCHIVOS];
+                    int fallo = 0;
+                    int n = separarArchivos(cad, nombres, MAX_ARCHIVOS);
 
-                    if (res == BIEN) {
-                        impListos(ventanaListos, listos);
-                    } else {
-                        mostrarErrorArchivo(ventanaComandos, nomArchivo, res);
+                    for (int i = 0; i < n; i++) {
+                        errores[i] = cargarArchivo(nombres[i], listos);
+                        if (errores[i] != BIEN) { fallo = 1; }
                     }
+
+                    impListos(ventanaListos, listos);
+                    if (fallo) { mostrarErroresCarga(ventanaComandos, nombres, errores, n); }
                 } else {
-                    /* TODO: mostrarErrorComando(ventanaComandos, comando); */
+                    mostrarErrorComando(ventanaComandos, comando);
                 }
             } else {
                 leerComando(ventanaComandos, &pos, cad, caracter);

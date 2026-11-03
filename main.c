@@ -6,7 +6,7 @@ Registros *reg = NULL;
 int main()
 {
     int maxY, maxX;
-    char cad[50];
+    char cad[TAM_COMANDO];
     int pos = 0;
     int leyendo = 0;
     memset(cad, 0, sizeof(cad));
@@ -28,22 +28,30 @@ int main()
     impEncabezado(ventanaListos);
     impEncabezado(ventanaTerminados);
 
-
     reg = crearRegistro();
-    Archivo *archivo = crearArchivo();
-    PCB *PCB = crearPCB(archivo, "");
+    Cola *listos = crearCola();
+    Cola *terminados = crearCola();
+    PCB *ejecucion = NULL;
 
     while (1)
     {
-        /*---------- Ejecucion de una instruccion ----------*/
-        if (PCB->estado == EJECUCION)
-        {
-            if (PCB->espera < 125) {
-                PCB->espera++;
+        /*---------- Planificador: si la CPU esta libre, entra el primero de Listos ----------*/
+        if (ejecucion == NULL && !colaVacia(listos)) {
+            ejecucion = extraer(listos);
+            cargarContexto(ejecucion);
+            ejecucion->estado = EJECUCION;
+            ejecucion->espera = 0;
+            limpiarFilas(ventanaEjecucion);
+            impListos(ventanaListos, listos);
+        }
+
+        if (ejecucion != NULL) {
+            if (ejecucion->espera < 125) {
+                ejecucion->espera++;
             } else {
-                PCB->espera = 0;
-                int res = ejecutarPrograma(PCB);
-                impEjecucion(ventanaEjecucion, PCB, res);
+                ejecucion->espera = 0;
+                int res = ejecutarPrograma(ejecucion);
+                impEjecucion(ventanaEjecucion, ejecucion, res);
 
                 /* Redibujar Ejecución puede mover el cursor físico de curses.
                    Si se está escribiendo un comando, devolverlo a Comandos. */
@@ -61,12 +69,15 @@ int main()
                     }
                 }
 
-                if (PCB->estado == TERMINADO) { PCB->estado = ESPERA;}
-                else if (PCB->IR->sig == NULL)
-                {
-                    PCB->estado = TERMINADO;
-                    PCB->estado = ESPERA;
-                } else { PCB->IR = PCB->IR->sig; }
+                if (ejecucion->estado == TERMINADO || ejecucion->IR->sig == NULL) {
+                    guardarContexto(ejecucion);
+                    ejecucion->estado = TERMINADO;
+                    encolar(terminados, ejecucion);
+                    ejecucion = NULL;
+                    impTerminados(ventanaTerminados, terminados);
+                } else {
+                    ejecucion->IR = ejecucion->IR->sig;
+                }
             }
         }
 
@@ -95,26 +106,16 @@ int main()
 
                 if (comando == EJECUTAR_ARCHIVO) {
                     char *nomArchivo = sacarNomArchivo(cad);
-
-                    liberarPCB(PCB);
-                    archivo = crearArchivo();
-                    PCB = crearPCB(archivo, nomArchivo);
-                    limpiarVentana(ventanaEjecucion, " Datos ");
-                    impEncabezado(ventanaEjecucion);
-
-                    /* Solo se detiene si el archivo no existe o esta vacio.
-                       Los errores de casa renglon se muestran al ejecutarlo. */
-                    int res = leerArchivo(nomArchivo, archivo);
-                    if (res == BIEN) { res = tokenizar(archivo); }
-                    if (res == BIEN) { res = verifSintaxis(archivo); }
+                    int res = cargarArchivo(nomArchivo, listos);
 
                     if (res == BIEN) {
-                        PCB->IR = archivo->inicio;
-                        PCB->PC = 0;
-                        PCB->espera = 0;
-                        PCB->estado = EJECUCION;
-                    } 
-                } 
+                        impListos(ventanaListos, listos);
+                    } else {
+                        mostrarErrorArchivo(ventanaComandos, nomArchivo, res);
+                    }
+                } else {
+                    /* TODO: mostrarErrorComando(ventanaComandos, comando); */
+                }
             } else {
                 leerComando(ventanaComandos, &pos, cad, caracter);
             }
@@ -127,7 +128,9 @@ int main()
     delwin(ventanaListos);
     delwin(ventanaTerminados);
     delwin(ventanaComandos);
-    liberarPCB(PCB);
+    liberarCola(listos);
+    liberarCola(terminados);
+    liberarPCB(ejecucion);
     free(reg);
     endwin();
     return 0;

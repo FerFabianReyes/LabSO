@@ -57,15 +57,6 @@ int detectarComando(char cad[])
     return COMANDO_INVALIDO;
 }
 
-char *sacarNomArchivo(char cad[])
-{
-    /* Salta todos los espacios  entre "ejecutar" y el nombre del archivo */
-    char *nomArchivo = strpbrk(cad, " \t");
-    if (!nomArchivo) { return NULL; }
-    while (*nomArchivo == ' ' || *nomArchivo == '\t') nomArchivo++;
-    return nomArchivo;
-}
-
 int separarArchivos(char cad[], char *nombres[], int max)
 {
     int n = 0;

@@ -77,14 +77,6 @@ void mostrarErroresCarga(WINDOW *cmd, char *nombres[], int errores[], int n)
     mostrarLineaComandos(cmd, linea);
 }
 
-/* Compatibilidad para el caso de un solo archivo. */
-void mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error)
-{
-    char *nombres[] = { nombre };
-    int errores[] = { error };
-    mostrarErroresCarga(cmd, nombres, errores, 1);
-}
-
 /* Muestra el error de comando en la misma fila de salida de Comandos. */
 void mostrarErrorComando(WINDOW *cmd, int error)
 {

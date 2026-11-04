@@ -92,16 +92,6 @@ void limpiarComando(WINDOW *ventana)
     wrefresh(ventana);
 }
 
-/* Borra todo el contenido de la ventana y vuelve a dibujar el marco */
-void limpiarVentana(WINDOW *ventana, char *nomVentana)
-{
-    werase(ventana);
-    box(ventana, 0, 0);
-    mvwprintw(ventana, 0, 2, "%s", nomVentana);
-    wrefresh(ventana);
-}
-
-
 void impEncabezado(WINDOW *ventana)
 {
     int maxY, maxX;

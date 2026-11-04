@@ -7,73 +7,22 @@
 #include <curses.h>
 #include <sys/select.h>
 #include "estructuras.h"
-#define FILA_INICIAL 4
+
+#define FILA_INICIAL  4
 #define TAM_COMANDO   256
 #define MAX_ARCHIVOS  16
 
-/*---------- ARCHIVOS --------------------------------*/
-Archivo* crearArchivo(); // F
-Renglon* crearRenglon(char *texto); // J
-void agregarRenglon(Archivo *archivo, char *texto); // I
-void liberarArchivo(Archivo *archivo); // G
-int leerArchivo(char *nomArchivo, Archivo *archivo); // F
-PCB* crearPCB(Archivo *prog, char *nombre); //J
-void liberarPCB(PCB *ejec); // I
+/*---------- ARCHIVOS (archivos.c) --------------------------------*/
+Archivo* crearArchivo();
+Renglon* crearRenglon(char *texto); 
+void agregarRenglon(Archivo *archivo, char *texto); 
+void liberarArchivo(Archivo *archivo);
+int leerArchivo(char *nomArchivo, Archivo *archivo); 
+PCB* crearPCB(Archivo *prog, char *nombre);
+void liberarPCB(PCB *ejec); 
+int cargarArchivo(char *nombre, Cola *listos);   /* BIEN o error; si falla, no encola y libera lo creado */
 
-/*---------- TOKENS --------------------------------*/
-int tokenizar(Archivo *archivo); //G
-void agregarToken(Renglon *renglon, Token *token); // F
-Token* crearToken(); //J
-int agregarTipoDato(Token *token);//I
-void liberarRenglon(Renglon *renglon);//G
-
-/*---------- LEXICO Y SINTACTICO --------------------------------*/
-int esNumero(Token *token); //F ----------------
-int esRegistro(Token *token); //J
-int esInstruccion(Token *token);//I
-int verifSintaxis(Archivo *archivo);//G
-int parserDosParametros(Token *token);//F -----------------
-int parserUnParametro(Token *token);//J
-int espaciosMultiples(char *texto);//I
-int verifEspacios(char *texto);// ----------------------
-
-/*---------- INSTRUCCIONES --------------------------------*/
-Registros* crearRegistro();//G
-int ejecutarPrograma(PCB *ejec);//F -----------------
-int obtenerRegistro(char nombre[], Registros *registros, int **registro);//J
-int obtenerValor(Token *tok);//I
-int mov(Token *param);//G
-int add(Token *param);//F -----------------
-int sub(Token *param);//F  --------------
-int mul(Token *param);//F -------------
-int divR(Token *param);//G
-int inc(Token *param);//I
-int dec(Token *param);//G
-
-/*---------- VENTANAS --------------------------------*/
-int kbhit(void);//F  ----------------
-WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre);//J
-void impVentanaComandos(WINDOW *ventana);//I
-void limpiarComando(WINDOW *ventana);//G
-void impEncabezado(WINDOW *ventana);//F ------------------
-void impEjecucion(WINDOW *ventana, PCB *PCB, int resultado);//J
-void limpiarVentana(WINDOW *ventana, char *nomVentana);//I
-
-/*---------- COMANDOS --------------------------------*/
-int detectarComando(char cad[]);//G
-char *sacarNomArchivo(char cad[]);//F ------------------
-void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter);//J
-void borrarCaracter(WINDOW *ventana, int *pos);//I
-void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);//G
-
-/* --------- LOG ERRORES ----------------------------*/
-const char *mensajeEstatus(int codigo);//J
-
-/*------------------------- Posibles funciones ----------------------------------------------*/
-// Estas funciones son como las posibles en las que nos podemos guiar, de preferencia mantenerlas
-// pero si tienen que modificar el tipo de retorno o los parámetros está bien, son sólo como 
-// sugerencias de como podrían ser las funciones en las que vamos a trabajar
-/* COLAS Y CONTEXTO */
+/*---------- COLAS Y CONTEXTO (colas.c) --------------------------------*/
 Cola* crearCola(void);
 void  encolar(Cola *c, PCB *p);        /* deja p->siguiente = NULL */
 PCB*  extraer(Cola *c);                /* NULL si está vacía */
@@ -82,24 +31,59 @@ void  liberarCola(Cola *c);
 void  cargarContexto(PCB *p);          /* *reg  <- p->registro */
 void  guardarContexto(PCB *p);         /* p->registro <- *reg */
 
-/* CARGA DE ARCHIVOS */
-int   cargarArchivo(char *nombre, Cola *listos);   /* BIEN o error; si falla, no encola y libera lo creado */
-void  mostrarErrorArchivo(WINDOW *cmd, char *nombre, int error);
+/*---------- COMANDOS (comandos.c) --------------------------------*/
+int detectarComando(char cad[]);
+int separarArchivos(char cad[], char *nombres[], int max);  /* regresa cuántos nombres */
+void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter);
+void borrarCaracter(WINDOW *ventana, int *pos);
+void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter);
 
-/* COMANDOS */
-int   separarArchivos(char cad[], char *nombres[], int max);  /* regresa cuántos nombres */
+/*---------- INSTRUCCIONES (instrucciones.c) --------------------------------*/
+Registros* crearRegistro();
+int ejecutarPrograma(PCB *ejec);
+int obtenerRegistro(char nombre[], Registros *registros, int **registro);
+int obtenerValor(Token *tok);
+int mov(Token *param);
+int add(Token *param); 
+int sub(Token *param);
+int mul(Token *param);
+int divR(Token *param);
+int inc(Token *param);
+int dec(Token *param);
 
-/* VENTANAS */
-void  impListos(WINDOW *v, Cola *c);        /* IR y Status en "-" */
-void  impTerminados(WINDOW *v, Cola *c);    /* últimos valores y última instrucción */ 
-void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
-void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
-void limpiarFilas(WINDOW *ventana);
+/*---------- LEXICO Y SINTACTICO (lexicoSintactico.c) --------------------------------*/
+int esNumero(Token *token);
+int esRegistro(Token *token);  
+int esInstruccion(Token *token); 
+int verifSintaxis(Archivo *archivo); 
+int parserDosParametros(Token *token); 
+int parserUnParametro(Token *token); 
+int espaciosMultiples(char *texto); 
+int verifEspacios(char *texto);
 
-
-/* Nuevos prototipos*/
+/*---------- LOG ERRORES (logErrores.c) --------------------------------*/
+const char *mensajeEstatus(int codigo); 
 void mostrarErroresCarga(WINDOW *cmd, char *nombres[], int errores[], int n);
 void mostrarErrorComando(WINDOW *cmd, int error);
 
+/*---------- TOKENS (tokens.c) --------------------------------*/
+int tokenizar(Archivo *archivo);  
+void agregarToken(Renglon *renglon, Token *token); 
+Token* crearToken();  
+int agregarTipoDato(Token *token); 
+void liberarRenglon(Renglon *renglon); 
+
+/*---------- VENTANAS (ventanas.c) --------------------------------*/
+int kbhit(void);
+WINDOW *crearVentana(int altura, int anchura, int posY, char *nombre); 
+void impVentanaComandos(WINDOW *ventana); 
+void limpiarComando(WINDOW *ventana); 
+void impEncabezado(WINDOW *ventana); 
+void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado); 
+void impListos(WINDOW *v, Cola *c);        /* IR y Status en "-" */
+void impTerminados(WINDOW *v, Cola *c);    /* últimos valores y última instrucción */
+void imprimirCola(WINDOW *ventana, Cola *cola, int terminados);
+void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla, PCB *p, const char *ir, const char *status);
+void limpiarFilas(WINDOW *ventana);
 
 #endif

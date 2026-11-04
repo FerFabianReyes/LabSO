@@ -82,12 +82,10 @@ typedef enum errorAdvertencia{
     NO_HAY_TEXTO,
 
 /*----- Tokens -----*/
-    NO_HAY_TOKENS = 200,
-    LINEA_VACIA,
+    LINEA_VACIA = 200,
 
 /*----- Lexico -----*/
-    INICIA_EN_NUMERO = 300,
-    TIPO_PARAM_INVALIDO,
+    TIPO_PARAM_INVALIDO = 300,
     INICIA_MINUSCULA,
     REGISTRO_INVALIDO,
     NUM_DECIMAL,

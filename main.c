@@ -21,8 +21,8 @@ int main()
     WINDOW *ventanaListos = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
     WINDOW *ventanaTerminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
     WINDOW *ventanaComandos = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
-    nodelay(ventanaComandos, TRUE);
     keypad(ventanaComandos, TRUE);
+    
     limpiarComando(ventanaComandos);
     impEncabezado(ventanaEjecucion);
     impEncabezado(ventanaListos);

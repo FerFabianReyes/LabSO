@@ -120,42 +120,32 @@ void impEncabezado(WINDOW *ventana)
     wrefresh(ventana);
 }
 
-/* Agrega una fila a la tabla con el estado despues de ejecutar el renglon */
+/* Muestra únicamente el estado de la instrucción que se está ejecutando.
+   La fila es fija y se limpia el área de datos para no conservar historial. */
 void impEjecucion(WINDOW *ventana, PCB *proceso, int resultado)
 {
-    static int fila = FILA_INICIAL;
-    static PCB *ultimaPCB = NULL;
-    static int ultimoId = -1;
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
     if (maxY <= FILA_INICIAL || maxX <= 2 || !proceso) { return; }
+
     int anchoTabla = maxX - 2;
-    int desp = 1;
+    const char *instruccion = (proceso->IR && proceso->IR->texto)
+                                ? proceso->IR->texto : "";
 
-    /* Cada proceso comienza desde la primera fila de datos. También se
-       compara el ID por si el asignador reutiliza la dirección del PCB. */
-    if (ultimaPCB != proceso || (proceso && ultimoId != proceso->id)) {
-        limpiarFilas(ventana);
-        fila = FILA_INICIAL;
-        ultimaPCB = proceso;
-        ultimoId = proceso ? proceso->id : -1;
-    }
-    if (fila >= maxY - 1) {
-        fila = FILA_INICIAL;
-        mvwhline(ventana, fila, 1, ' ', maxX - 2);
-    }
+    /* Borra las instrucciones anteriores: la ventana conserva solo una fila. */
+    limpiarFilas(ventana);
 
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_ID,     proceso->id);
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_NOMBRE, proceso->nombre, 0);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_PC,     proceso->PC);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_AX,     reg->EAX);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_BX,     reg->EBX);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_CX,     reg->ECX);
-    imprimirNumero(ventana, fila, desp, anchoTabla, COL_DX,     reg->EDX);
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_IR,     proceso->IR->texto, 0);
-    imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, mensajeEstatus(resultado), 0);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_ID, proceso->id);
+    imprimirCelda (ventana, FILA_INICIAL, 1, anchoTabla, COL_NOMBRE, proceso->nombre, 0);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_PC, proceso->PC);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_AX, reg->EAX);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_BX, reg->EBX);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_CX, reg->ECX);
+    imprimirNumero(ventana, FILA_INICIAL, 1, anchoTabla, COL_DX, reg->EDX);
+    imprimirCelda (ventana, FILA_INICIAL, 1, anchoTabla, COL_IR, instruccion, 0);
+    imprimirCelda (ventana, FILA_INICIAL, 1, anchoTabla, COL_STATUS,
+                   mensajeEstatus(resultado), 0);
 
-    fila++;
     wrefresh(ventana);
 }
 

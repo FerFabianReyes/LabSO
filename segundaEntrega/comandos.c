@@ -1,0 +1,70 @@
+#include "prototipos.h"
+
+void borrarCaracter(WINDOW *ventana, int *pos)
+{
+    (*pos)--;
+    mvwaddch(ventana, 1, (*pos)+4, ' ');
+    wmove(ventana, 1, (*pos)+4);
+    wrefresh(ventana);
+}
+
+void imprimirCaracter(WINDOW *ventana, int *pos, char cad[], int caracter)
+{
+    cad[*pos] = (char)caracter;
+    mvwaddch(ventana, 1, (*pos)+4, caracter);
+    wrefresh(ventana);
+    (*pos)++;
+}
+
+void leerComando(WINDOW *ventana, int *pos, char cad[], int caracter)
+{
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    (void)maxY;
+    int limite = maxX - 6;                     /* no pasar del borde derecho */
+    if (limite > TAM_COMANDO - 1) { limite = TAM_COMANDO - 1; }
+
+    wmove(ventana, 1, (*pos)+4);
+    wrefresh(ventana);
+
+    if (caracter == KEY_BACKSPACE || caracter == 127) {
+        if (*pos > 0) { borrarCaracter(ventana, pos); }
+    } else if (caracter >= 32 && caracter < 127 && *pos < limite) {
+        imprimirCaracter(ventana, pos, cad, caracter);
+    }
+}
+
+int detectarComando(char cad[])
+{
+    /* Quita espacios al inicio y al final para que el comando no falle por un espacio extra. */
+    char *inicio = cad;
+    while (*inicio == ' ' || *inicio == '\t') inicio++;
+    if (inicio != cad) memmove(cad, inicio, strlen(inicio) + 1);
+
+    int n = strlen(cad);
+    while (n > 0 && (cad[n-1] == ' ' || cad[n-1] == '\t')) cad[--n] = '\0';
+
+    if (strcmp(cad, "salir") == 0) { return SALIR; }
+
+    regex_t regex;
+    char *patron = "^ejecutar([[:space:]]+[^[:space:]]+)+$";
+    int resultado = regcomp(&regex, patron, REG_EXTENDED | REG_NOSUB);
+    if (resultado != 0) return COMANDO_INVALIDO;
+    resultado = regexec(&regex, cad, 0, NULL, 0);
+    regfree(&regex);
+
+    if (!resultado) { return EJECUTAR_ARCHIVO; }
+    return COMANDO_INVALIDO;
+}
+
+int separarArchivos(char cad[], char *nombres[], int max)
+{
+    int n = 0;
+    char *delim;
+    strtok_r(cad, " \t", &delim);                 /* salta "ejecutar" */
+    char *palabra;
+    while (n < max && (palabra = strtok_r(NULL, " \t", &delim)) != NULL) {
+        nombres[n++] = palabra;
+    }
+    return n;
+}

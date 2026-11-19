@@ -32,7 +32,7 @@ int main()
     Cola *listos = crearCola();
     Cola *terminados = crearCola();
     PCB *ejecucion = NULL;
-
+ 
     while (1)
     {
         /*---------- Planificador: si la CPU esta libre, entra el primero de Listos ----------*/

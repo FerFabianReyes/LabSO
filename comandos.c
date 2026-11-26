@@ -1,4 +1,6 @@
 #include "prototipos.h"
+#include <errno.h>
+#include <limits.h>
 
 void borrarCaracter(WINDOW *ventana, int *pos)
 {
@@ -46,6 +48,14 @@ int detectarComando(char cad[])
 
     if (strcmp(cad, "salir") == 0) { return SALIR; }
 
+    /* kill <id>: id solo con digitos */
+    regex_t regexKill;
+    if (regcomp(&regexKill, "^kill[[:space:]]+[0-9]+$", REG_EXTENDED | REG_NOSUB) == 0) {
+        int coincideKill = (regexec(&regexKill, cad, 0, NULL, 0) == 0);
+        regfree(&regexKill);
+        if (coincideKill) { return KILL_PROCESO; }
+    }
+
     regex_t regex;
     char *patron = "^ejecutar([[:space:]]+[^[:space:]]+)+$";
     int resultado = regcomp(&regex, patron, REG_EXTENDED | REG_NOSUB);
@@ -69,10 +79,21 @@ int separarArchivos(char cad[], char *nombres[], int max)
     return n;
 }
 /*
- * Regresa el id de "kill N", o -1 si no es valido.
+ * Regresa el id de "kill N" (ya validado por detectarComando),
+ * o -1 si el numero no cabe en un int.
  */
 int idKill(char cad[])
 {
-    (void)cad;
-    return -1;                      /* TODO */
+    char *p = cad;
+    while (*p == ' ' || *p == '\t') { p++; }
+    if (strncmp(p, "kill", 4) != 0) { return -1; }
+    p += 4;
+
+    errno = 0;
+    char *fin;
+    long id = strtol(p, &fin, 10);
+    if (fin == p || *fin != '\0' || errno == ERANGE || id < 0 || id > INT_MAX) {
+        return -1;
+    }
+    return (int)id;
 }

@@ -10,6 +10,8 @@ int colaVacia(Cola *cola);
 void liberarCola(Cola *cola);
 void cargarContexto(PCB *proceso);
 void guardarContexto(PCB *proceso);
+PCB *extraerPorId(Cola *cola, int id);
+PCB *buscarPorId(Cola *cola, int id);
 #include <assert.h>
 
 Registros *reg = NULL;
@@ -101,6 +103,35 @@ int main(void)
     encolar(cola, crearPCBPrueba(4));
     liberarCola(cola);
     assert(pcb_liberados == 4);
+
+    /* buscarPorId / extraerPorId: primero, medio, ultimo y ausente. */
+    cola = crearCola();
+    PCB *a = crearPCBPrueba(10), *b = crearPCBPrueba(11), *c = crearPCBPrueba(12);
+    encolar(cola, a); encolar(cola, b); encolar(cola, c);
+
+    assert(buscarPorId(cola, 11) == b);
+    assert(buscarPorId(cola, 99) == NULL);
+    assert(buscarPorId(NULL, 10) == NULL);
+    assert(cola->tamanio == 3);                 /* buscar no saca */
+
+    assert(extraerPorId(cola, 99) == NULL);
+    assert(extraerPorId(cola, 11) == b);        /* medio */
+    assert(b->siguiente == NULL);
+    assert(cola->tamanio == 2);
+    assert(a->siguiente == c);
+
+    assert(extraerPorId(cola, 12) == c);        /* ultimo: final debe actualizarse */
+    assert(cola->final == a);
+    encolar(cola, b);
+    assert(cola->final == b && a->siguiente == b);
+
+    assert(extraerPorId(cola, 10) == a);        /* primero */
+    assert(cola->frente == b);
+    assert(extraerPorId(cola, 11) == b);        /* unico: la cola queda vacia */
+    assert(colaVacia(cola) && cola->final == NULL && cola->tamanio == 0);
+
+    liberarPCB(a); liberarPCB(b); liberarPCB(c);
+    free(cola);
 
     free(reg);
     reg = NULL;

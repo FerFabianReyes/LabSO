@@ -12,6 +12,8 @@ const char *mensajeEstatus(int codigo)
     case LINEA_VACIA:               return "Linea vacia";
     case INSTRUCCION_NO_RECONOCIDA: return "Op. desconocida";
     case DIV_ENTRE_CERO:            return "Div. entre 0";
+    case KILLED:                    return "Killed";
+    case PROCESO_NO_EXISTE:         return "no existe";
 
     case TIPO_PARAM_INVALIDO:
     case INICIA_MINUSCULA:
@@ -84,8 +86,10 @@ void mostrarErrorComando(WINDOW *cmd, int error)
     snprintf(linea, sizeof(linea), "Comando: %s", mensajeEstatus(error));
     mostrarLineaComandos(cmd, linea);
 }
-/* "Proceso con id: N no existe". */
+/* Muestra "Proceso con id: N no existe" en la fila de salida de Comandos. */
 void mostrarErrorKill(WINDOW *cmd, int id)
 {
-    (void)cmd; (void)id;            /* TODO */
+    char linea[128];
+    snprintf(linea, sizeof(linea), "Proceso con id: %d no existe", id);
+    mostrarLineaComandos(cmd, linea);
 }

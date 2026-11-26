@@ -192,7 +192,9 @@ void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
             const char *status = "-";
             if (terminados) {
                 ir = p->IR ? p->IR->texto : "-";
-                status = "Terminado";
+                /* BIEN -> "Terminado"; si no, el error o "Killed" */
+                status = (p->estatusFinal == BIEN)
+                             ? "Terminado" : mensajeEstatus(p->estatusFinal);
             }
             imprimirFilaPCB(ventana, fila, anchoTabla, p, ir, status);
             fila++;

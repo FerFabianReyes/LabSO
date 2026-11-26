@@ -102,16 +102,54 @@ void guardarContexto(PCB *proceso)
 }
 
 /*
- * Extraer/buscar un PCB por id en cualquier posicion de la cola.
+ * Busca un PCB por id en cualquier posicion de la cola, sin sacarlo.
  */
 PCB *buscarPorId(Cola *cola, int id)
 {
-    (void)cola; (void)id;
-    return NULL;                    /* TODO */
+    if (!cola) {
+        return NULL;
+    }
+
+    for (PCB *p = cola->frente; p; p = p->siguiente) {
+        if (p->id == id) {
+            return p;
+        }
+    }
+    return NULL;
 }
 
+/*
+ * Saca un PCB por id de cualquier posicion de la cola.
+ * No lo destruye: el llamador decide a donde va. NULL si no esta.
+ */
 PCB *extraerPorId(Cola *cola, int id)
 {
-    (void)cola; (void)id;
-    return NULL;                    /* TODO */
+    if (!cola) {
+        return NULL;
+    }
+
+    PCB *anterior = NULL;
+    PCB *actual = cola->frente;
+    while (actual && actual->id != id) {
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+    if (!actual) {
+        return NULL;
+    }
+
+    if (anterior) {
+        anterior->siguiente = actual->siguiente;
+    } else {
+        cola->frente = actual->siguiente;
+    }
+    if (cola->final == actual) {
+        cola->final = anterior;
+    }
+
+    actual->siguiente = NULL;
+    if (cola->tamanio > 0) {
+        cola->tamanio--;
+    }
+    return actual;
 }

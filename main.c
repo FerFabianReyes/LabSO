@@ -26,6 +26,7 @@ int main()
     Cola *bloqueados = crearCola();
     Cola *terminados = crearCola();
     PCB *ejecucion = NULL;
+    int enPantalla = -1;        /* id del proceso que muestra Ejecucion */
 
     while (1)
     {
@@ -35,7 +36,10 @@ int main()
             cargarContexto(ejecucion);
             ejecucion->estado = EJECUCION;
             ejecucion->espera = 0;
-            limpiarFilas(pantalla.ejecucion);
+            ejecucion->ejecutadas = 0;              /* quantum nuevo */
+            /* Si es el mismo proceso que ya se ve en pantalla (volvio de
+               Listos tras su quantum) no se borra la fila: evita parpadeo. */
+            if (ejecucion->id != enPantalla) { limpiarFilas(pantalla.ejecucion); }
             impListos(pantalla.listos, listos);
         }
 
@@ -46,6 +50,7 @@ int main()
                 ejecucion->espera = 0;
                 int res = ejecutarPrograma(ejecucion);
                 impEjecucion(pantalla.ejecucion, ejecucion, res);
+                enPantalla = ejecucion->id;
 
                 /* Redibujar Ejecución puede mover el cursor físico de curses.
                    Si se está escribiendo un comando, devolverlo a Comandos. */
@@ -63,14 +68,27 @@ int main()
                     }
                 }
 
-                if (ejecucion->estado == TERMINADO || ejecucion->IR->sig == NULL) {
+                /* Error en la instruccion, END o ultimo renglon: Terminados.
+                   Se guardan los registros calculados hasta este momento. */
+                if (res != BIEN || ejecucion->estado == TERMINADO || ejecucion->IR->sig == NULL) {
                     guardarContexto(ejecucion);
                     ejecucion->estado = TERMINADO;
+                    ejecucion->estatusFinal = res;      /* BIEN o el error */
                     encolar(terminados, ejecucion);
                     ejecucion = NULL;
                     impTerminados(pantalla.terminados, terminados);
                 } else {
                     ejecucion->IR = ejecucion->IR->sig;
+                    /* Quantum: Q instrucciones por turno, luego cede la CPU. */
+                    ejecucion->ejecutadas++;
+                    if (ejecucion->ejecutadas >= Q) {
+                        guardarContexto(ejecucion);
+                        ejecucion->estado = ESPERA;
+                        ejecucion->ejecutadas = 0;
+                        encolar(listos, ejecucion);
+                        ejecucion = NULL;
+                        impListos(pantalla.listos, listos);
+                    }
                 }
             }
         }
@@ -98,7 +116,22 @@ int main()
 
                 if (comando == SALIR) { break; }
 
-                if (comando == EJECUTAR_ARCHIVO) {
+                if (comando == KILL_PROCESO) {
+                    int id = idKill(cad);
+                    if (id < 0) {
+                        mostrarErrorComando(pantalla.comandos, COMANDO_INVALIDO);
+                    } else if (matarProceso(id, &ejecucion, listos, terminados) == BIEN) {
+                        if (ejecucion == NULL) {
+                            limpiarFilas(pantalla.ejecucion);
+                            wrefresh(pantalla.ejecucion);
+                            enPantalla = -1;
+                        }
+                        impListos(pantalla.listos, listos);
+                        impTerminados(pantalla.terminados, terminados);
+                    } else {
+                        mostrarErrorKill(pantalla.comandos, id);
+                    }
+                } else if (comando == EJECUTAR_ARCHIVO) {
                     char *nombres[MAX_ARCHIVOS];
                     int errores[MAX_ARCHIVOS];
                     int fallo = 0;

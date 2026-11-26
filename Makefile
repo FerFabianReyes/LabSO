@@ -17,13 +17,16 @@ $(EXE): $(OBJ)
 
 # ---- Pruebas (sin curses) ----
 # Cada prueba nueva: agregar su regla y su nombre en TESTS.
-TESTS = test_colas
+TESTS = test_colas test_planificador
 
 test: $(TESTS)
 	@for t in $(TESTS); do ./$$t || exit 1; done
 
 test_colas: test_colas.c colas.c estructuras.h
 	$(CC) $(CFLAGS) test_colas.c colas.c -o $@
+
+test_planificador: test_planificador.c planificador.c colas.c estructuras.h prototipos.h
+	$(CC) $(CFLAGS) test_planificador.c planificador.c colas.c -o $@
 
 clean:
 	rm -f $(OBJ) $(EXE) $(TESTS)

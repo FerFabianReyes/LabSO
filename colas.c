@@ -100,3 +100,18 @@ void guardarContexto(PCB *proceso)
 
     *proceso->registro = *reg;
 }
+
+/*
+ * Extraer/buscar un PCB por id en cualquier posicion de la cola.
+ */
+PCB *buscarPorId(Cola *cola, int id)
+{
+    (void)cola; (void)id;
+    return NULL;                    /* TODO */
+}
+
+PCB *extraerPorId(Cola *cola, int id)
+{
+    (void)cola; (void)id;
+    return NULL;                    /* TODO */
+}

@@ -211,3 +211,33 @@ void impTerminados(WINDOW *ventana, Cola *cola)
 {
     imprimirCola(ventana, cola, 1);
 }
+/*
+ * crearPantalla: el diseno de la pantalla vive aqui, no en main.c.
+ * Fase 0: mismas 4 ventanas de antes. nuevos y bloqueados quedan en NULL
+ * hasta la Entrega 2 (area Interfaz).
+ */
+Pantalla crearPantalla(void)
+{
+    int maxY, maxX;
+    getmaxyx(stdscr, maxY, maxX);
+
+    Pantalla p;
+    p.ejecucion  = crearVentana(maxY*8/27, maxX, 0, " Ejecución ");
+    p.nuevos     = NULL;
+    p.listos     = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
+    p.bloqueados = NULL;
+    p.terminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
+    p.comandos   = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
+    keypad(p.comandos, TRUE);
+
+    limpiarComando(p.comandos);
+    impEncabezado(p.ejecucion);
+    impEncabezado(p.listos);
+    impEncabezado(p.terminados);
+    return p;
+}
+
+/* STUBS Fase 0 -- Entrega 2, area Interfaz. Deben aceptar v == NULL. */
+void impNuevos(WINDOW *v, Cola *c)     { (void)v; (void)c; }
+void impBloqueados(WINDOW *v, Cola *c) { (void)v; (void)c; }
+void impRecursos(WINDOW *v)            { (void)v; }

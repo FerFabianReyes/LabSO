@@ -2,8 +2,8 @@ CC     = gcc
 CFLAGS = -Wall -Wextra -std=gnu11
 LIBS   = -lncursesw
 
-SRC = main.c archivos.c colas.c comandos.c instrucciones.c lexicoSintactico.c \
-      logErrores.c tokens.c ventanas.c
+# Todos los .c del proyecto, excepto las pruebas (test_*.c)
+SRC = $(filter-out test_%.c, $(wildcard *.c))
 OBJ = $(SRC:.c=.o)
 EXE = proyecto
 
@@ -15,7 +15,17 @@ $(EXE): $(OBJ)
 %.o: %.c prototipos.h estructuras.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	rm -f $(OBJ) $(EXE)
+# ---- Pruebas (sin curses) ----
+# Cada prueba nueva: agregar su regla y su nombre en TESTS.
+TESTS = test_colas
 
-.PHONY: all clean
+test: $(TESTS)
+	@for t in $(TESTS); do ./$$t || exit 1; done
+
+test_colas: test_colas.c colas.c estructuras.h
+	$(CC) $(CFLAGS) test_colas.c colas.c -o $@
+
+clean:
+	rm -f $(OBJ) $(EXE) $(TESTS)
+
+.PHONY: all clean test

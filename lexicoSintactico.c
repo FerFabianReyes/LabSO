@@ -128,3 +128,12 @@ int espaciosMultiples(char *texto)
     }
     return BIEN;
 }
+
+/*
+ * Lee los tres numeros de un renglon MAX o GET (ya tokenizado).
+ */
+int extraerNumeros(Renglon *ren, int out[NUM_RECURSOS])
+{
+    (void)ren; (void)out;
+    return NUMEROS_INVALIDOS;       /* TODO */
+}

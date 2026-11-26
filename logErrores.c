@@ -84,3 +84,8 @@ void mostrarErrorComando(WINDOW *cmd, int error)
     snprintf(linea, sizeof(linea), "Comando: %s", mensajeEstatus(error));
     mostrarLineaComandos(cmd, linea);
 }
+/* "Proceso con id: N no existe". */
+void mostrarErrorKill(WINDOW *cmd, int id)
+{
+    (void)cmd; (void)id;            /* TODO */
+}

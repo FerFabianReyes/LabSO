@@ -68,3 +68,11 @@ int separarArchivos(char cad[], char *nombres[], int max)
     }
     return n;
 }
+/*
+ * Regresa el id de "kill N", o -1 si no es valido.
+ */
+int idKill(char cad[])
+{
+    (void)cad;
+    return -1;                      /* TODO */
+}

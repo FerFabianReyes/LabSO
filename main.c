@@ -2,10 +2,11 @@
 #include "prototipos.h"
 
 Registros *reg = NULL;
+int Q = 4;                              /* quantum: instrucciones por turno */
+int recursos[NUM_RECURSOS];             /* recursos disponibles del sistema */
 
 int main()
 {
-    int maxY, maxX;
     char cad[TAM_COMANDO];
     int pos = 0;
     int leyendo = 0;
@@ -15,24 +16,17 @@ int main()
     initscr(); cbreak(); noecho();
     keypad(stdscr, TRUE);
     curs_set(0);
-    getmaxyx(stdscr, maxY, maxX);
 
-    WINDOW *ventanaEjecucion = crearVentana(maxY*8/27, maxX, 0, " Ejecución ");
-    WINDOW *ventanaListos = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
-    WINDOW *ventanaTerminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
-    WINDOW *ventanaComandos = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
-    keypad(ventanaComandos, TRUE);
-    
-    limpiarComando(ventanaComandos);
-    impEncabezado(ventanaEjecucion);
-    impEncabezado(ventanaListos);
-    impEncabezado(ventanaTerminados);
+    Pantalla pantalla = crearPantalla();
 
     reg = crearRegistro();
+    recursosIniciar();
+    Cola *nuevos = crearCola();
     Cola *listos = crearCola();
+    Cola *bloqueados = crearCola();
     Cola *terminados = crearCola();
     PCB *ejecucion = NULL;
- 
+
     while (1)
     {
         /*---------- Planificador: si la CPU esta libre, entra el primero de Listos ----------*/
@@ -41,8 +35,8 @@ int main()
             cargarContexto(ejecucion);
             ejecucion->estado = EJECUCION;
             ejecucion->espera = 0;
-            limpiarFilas(ventanaEjecucion);
-            impListos(ventanaListos, listos);
+            limpiarFilas(pantalla.ejecucion);
+            impListos(pantalla.listos, listos);
         }
 
         if (ejecucion != NULL) {
@@ -51,21 +45,21 @@ int main()
             } else {
                 ejecucion->espera = 0;
                 int res = ejecutarPrograma(ejecucion);
-                impEjecucion(ventanaEjecucion, ejecucion, res);
+                impEjecucion(pantalla.ejecucion, ejecucion, res);
 
                 /* Redibujar Ejecución puede mover el cursor físico de curses.
                    Si se está escribiendo un comando, devolverlo a Comandos. */
                 if (leyendo) {
                     int altoComandos, anchoComandos;
-                    getmaxyx(ventanaComandos, altoComandos, anchoComandos);
+                    getmaxyx(pantalla.comandos, altoComandos, anchoComandos);
                     (void)altoComandos;
                     if (anchoComandos > 2) {
                         int columnaCursor = pos + 4;
                         if (columnaCursor >= anchoComandos - 1) {
                             columnaCursor = anchoComandos - 2;
                         }
-                        wmove(ventanaComandos, 1, columnaCursor);
-                        wrefresh(ventanaComandos);
+                        wmove(pantalla.comandos, 1, columnaCursor);
+                        wrefresh(pantalla.comandos);
                     }
                 }
 
@@ -74,7 +68,7 @@ int main()
                     ejecucion->estado = TERMINADO;
                     encolar(terminados, ejecucion);
                     ejecucion = NULL;
-                    impTerminados(ventanaTerminados, terminados);
+                    impTerminados(pantalla.terminados, terminados);
                 } else {
                     ejecucion->IR = ejecucion->IR->sig;
                 }
@@ -83,14 +77,14 @@ int main()
 
         /*---------- Lectura de comandos ----------*/
         if (kbhit()) {
-            int caracter = wgetch(ventanaComandos);
+            int caracter = wgetch(pantalla.comandos);
             if (caracter == ERR) { napms(16); continue; }
 
             if (!leyendo) {
                 leyendo = 1;
                 pos = 0;
                 memset(cad, 0, sizeof(cad));
-                impVentanaComandos(ventanaComandos);
+                impVentanaComandos(pantalla.comandos);
                 curs_set(1);
             }
 
@@ -99,7 +93,7 @@ int main()
                 leyendo = 0;
                 curs_set(0);
 
-                limpiarComando(ventanaComandos);
+                limpiarComando(pantalla.comandos);
                 int comando = detectarComando(cad);
 
                 if (comando == SALIR) { break; }
@@ -111,27 +105,33 @@ int main()
                     int n = separarArchivos(cad, nombres, MAX_ARCHIVOS);
 
                     for (int i = 0; i < n; i++) {
-                        errores[i] = cargarArchivo(nombres[i], listos);
+                        errores[i] = cargarArchivo(nombres[i], nuevos, terminados);
                         if (errores[i] != BIEN) { fallo = 1; }
                     }
 
-                    impListos(ventanaListos, listos);
-                    if (fallo) { mostrarErroresCarga(ventanaComandos, nombres, errores, n); }
+                    largoPlazo(nuevos, listos);
+                    impNuevos(pantalla.nuevos, nuevos);
+                    impListos(pantalla.listos, listos);
+                    if (fallo) { mostrarErroresCarga(pantalla.comandos, nombres, errores, n); }
                 } else {
-                    mostrarErrorComando(ventanaComandos, comando);
+                    mostrarErrorComando(pantalla.comandos, comando);
                 }
             } else {
-                leerComando(ventanaComandos, &pos, cad, caracter);
+                leerComando(pantalla.comandos, &pos, cad, caracter);
             }
         }
 
         napms(16);
     }
 
-    delwin(ventanaEjecucion);
-    delwin(ventanaListos);
-    delwin(ventanaTerminados);
-    delwin(ventanaComandos);
+    delwin(pantalla.ejecucion);
+    delwin(pantalla.listos);
+    delwin(pantalla.terminados);
+    delwin(pantalla.comandos);
+    if (pantalla.nuevos) { delwin(pantalla.nuevos); }
+    if (pantalla.bloqueados) { delwin(pantalla.bloqueados); }
+    liberarCola(nuevos);
+    liberarCola(bloqueados);
     liberarCola(listos);
     liberarCola(terminados);
     liberarPCB(ejecucion);

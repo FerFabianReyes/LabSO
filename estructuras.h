@@ -1,6 +1,9 @@
 #ifndef ESTRUCTURAS_H
 #define ESTRUCTURAS_H
 
+#define NUM_RECURSOS     3      /* recursos X, Y, Z */
+#define LIMITE_RECURSOS  8      /* total del sistema por recurso */
+
 typedef struct Token{
     char *textoToken;
     int tipoParam;
@@ -32,6 +35,9 @@ typedef struct {
 
 extern Registros *reg;
 
+extern int Q;                           /* quantum: instrucciones por turno (main.c) */
+extern int recursos[NUM_RECURSOS];      /* recursos disponibles del sistema (main.c) */
+
 /*
  * Cada PCB conserva una copia propia de sus registros.
  * `siguiente` enlaza el PCB con el siguiente elemento de una cola FIFO.
@@ -45,6 +51,10 @@ typedef struct PCB{
     int estado;
     int espera;
     int id;
+    int max[NUM_RECURSOS];      /* MAX x,y,z: maximo que declara el proceso */
+    int usado[NUM_RECURSOS];    /* recursos X, Y, Z que tiene asignados ahora */
+    int ejecutadas;             /* instrucciones ejecutadas en el quantum actual */
+    int estatusFinal;           /* BIEN, KILLED o el error que lo termino */
     struct PCB *siguiente;
 } PCB;
 
@@ -60,17 +70,17 @@ typedef struct {
 
 /*------------ TIPO DE PARAMETRO  ---------------------------------*/
 typedef enum tipoParametro{
-    INSTR = 1, REG_COM, REG, NUM
+    INSTR = 1, REG_COM, REG, NUM, NUM_COM   /* NUM_COM: numero con coma, ej. "1," */
 } tipoParametro;
 
 /*------------ COMANDO EN LA TERMINAL  ---------------------------------*/
 typedef enum comandoTerminal{
-    SALIR = 10, EJECUTAR_ARCHIVO
+    SALIR = 10, EJECUTAR_ARCHIVO, KILL_PROCESO
 } comandoTerminal;
 
 /*------------ ESTADOS DEL SISTEMA  ---------------------------------*/
 typedef enum estadoSistema{
-    EJECUCION = 50, ESPERA, TERMINADO,
+    EJECUCION = 50, ESPERA, TERMINADO, NUEVO, BLOQUEADO
 } estadoSistema;
 
 /*------------ ERRORES Y ADVERTENCIAS ---------------------------------*/
@@ -101,7 +111,17 @@ typedef enum errorAdvertencia{
     COMA_CON_ESPACIOS,
 
 /*----- Comandos -----*/
-    COMANDO_INVALIDO = 500
+    COMANDO_INVALIDO = 500,
+
+/*----- Recursos -----*/
+    FALTA_MAX = 600,            /* la primera instruccion no es MAX */
+    MAX_EXCEDE_LIMITE,          /* algun valor de MAX es mayor que LIMITE_RECURSOS */
+    GET_EXCEDE_LIMITE,          /* usado + pedido supera LIMITE_RECURSOS */
+    NUMEROS_INVALIDOS,          /* MAX/GET con valores no validos (negativos, etc.) */
+
+/*----- Procesos -----*/
+    KILLED = 700,
+    PROCESO_NO_EXISTE
 } errorAdvertencia;
 
 #endif

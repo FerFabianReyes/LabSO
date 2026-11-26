@@ -126,12 +126,13 @@ int leerArchivo(char *nomArchivo, Archivo *archivo)
 /*
  * Carga el archivo y crea su PCB. Los errores léxicos/sintácticos de cada
  * renglón se conservan en Renglon.error: se reportan en Status al ejecutar,
- * pero no impiden que el proceso entre a la cola de Listos.
+ * pero no impiden que el proceso entre a la cola de Nuevos.
  */
-int cargarArchivo(char *nombre, Cola *listos)
+int cargarArchivo(char *nombre, Cola *nuevos, Cola *terminados)
 {
     if (!nombre || !*nombre) { return NOMBRE_INCORRECTO; }
-    if (!listos) { return NO_HAY_ARCHIVO; }
+    (void)terminados;                 /* se usa en la Entrega 2 */
+    if (!nuevos) { return NO_HAY_ARCHIVO; }
 
     Archivo *archivo = crearArchivo();
     if (!archivo) { return NO_HAY_ARCHIVO; }
@@ -151,6 +152,6 @@ int cargarArchivo(char *nombre, Cola *listos)
         return NO_HAY_ARCHIVO;
     }
 
-    encolar(listos, proceso);
+    encolar(nuevos, proceso);
     return BIEN;
 }

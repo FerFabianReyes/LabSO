@@ -1,0 +1,5 @@
+MAX 1,2,3
+GET 1,2,3
+FRE
+MOV AX,5
+END

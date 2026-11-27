@@ -28,6 +28,10 @@ int main()
     PCB *ejecucion = NULL;
     int enPantalla = -1;        /* id del proceso que muestra Ejecucion */
 
+    impNuevos(pantalla.nuevos, nuevos);
+    impBloqueados(pantalla.bloqueados, bloqueados);
+    impRecursos(pantalla.ejecucion);
+
     while (1)
     {
         /*---------- Planificador: si la CPU esta libre, entra el primero de Listos ----------*/
@@ -145,6 +149,8 @@ int main()
                     largoPlazo(nuevos, listos);
                     impNuevos(pantalla.nuevos, nuevos);
                     impListos(pantalla.listos, listos);
+                    impBloqueados(pantalla.bloqueados, bloqueados);
+                    impRecursos(pantalla.ejecucion);
                     if (fallo) { mostrarErroresCarga(pantalla.comandos, nombres, errores, n); }
                 } else {
                     mostrarErrorComando(pantalla.comandos, comando);

@@ -23,7 +23,7 @@ int agregarTipoDato(Token *token)
 {
     int tipoDato = esInstruccion(token);
 
-    if (tipoDato == INSTR || tipoDato == REG || tipoDato == REG_COM || tipoDato == NUM) {
+    if (tipoDato == INSTR || tipoDato == REG || tipoDato == REG_COM || tipoDato == NUM || tipoDato == NUM_COM) {
         token->tipoParam = tipoDato;
         return BIEN;
     }

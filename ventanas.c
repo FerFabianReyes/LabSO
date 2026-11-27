@@ -174,7 +174,12 @@ void imprimirFilaPCB(WINDOW *ventana, int fila, int anchoTabla,
     imprimirCelda (ventana, fila, desp, anchoTabla, COL_STATUS, status, 0);
 }
 
-void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
+/* Modos de imprimirCola (el tercer parametro conserva su firma). */
+enum { MODO_COLA = 0, MODO_TERMINADOS = 1, MODO_BLOQUEADOS = 2 };
+
+void imprimirCola(WINDOW *ventana, Cola *cola, int modo) {
+    if (!ventana) { return; }
+
     int maxY, maxX;
     getmaxyx(ventana, maxY, maxX);
     int anchoTabla = maxX - 2;
@@ -186,15 +191,18 @@ void imprimirCola(WINDOW *ventana, Cola *cola, int terminados) {
         int fila = FILA_INICIAL;
 
         for (PCB *p = cola->frente; p; p = p->siguiente) {
-            if (fila >= maxY - 1) { fila = FILA_INICIAL; }  
+            if (fila >= maxY - 1) { fila = FILA_INICIAL; }
 
             const char *ir = "-";
             const char *status = "-";
-            if (terminados) {
+            if (modo == MODO_TERMINADOS) {
                 ir = p->IR ? p->IR->texto : "-";
                 /* BIEN -> "Terminado"; si no, el error o "Killed" */
                 status = (p->estatusFinal == BIEN)
                              ? "Terminado" : mensajeEstatus(p->estatusFinal);
+            } else if (modo == MODO_BLOQUEADOS) {
+                ir = p->IR ? p->IR->texto : "-";    /* el GET que lo bloqueo */
+                status = "Bloqueado";
             }
             imprimirFilaPCB(ventana, fila, anchoTabla, p, ir, status);
             fila++;
@@ -214,32 +222,89 @@ void impTerminados(WINDOW *ventana, Cola *cola)
     imprimirCola(ventana, cola, 1);
 }
 /*
+ * Tamano minimo de terminal: 33 filas x 80 columnas.
+ *   Ejecucion 6 + 4 tablas de 6 filas (cada una con 1 fila de datos) + Comandos 3.
+ * Recomendado: 40 filas o mas para ver varios procesos por tabla.
+ * Si la terminal es mas chica, crearPantalla avisa y termina el programa.
+ */
+#define MIN_FILAS     33
+#define MIN_COLUMNAS  80
+#define ALTO_COMANDOS 3
+#define ALTO_EJECUCION 6
+
+/*
  * crearPantalla: el diseno de la pantalla vive aqui, no en main.c.
- * Fase 0: mismas 4 ventanas de antes. nuevos y bloqueados quedan en NULL
- * hasta la Entrega 2 (area Interfaz).
+ * Orden (arriba a abajo): Ejecucion, Nuevos, Listos, Bloqueados,
+ * Terminados y Comandos. Las 4 tablas se reparten el espacio restante.
  */
 Pantalla crearPantalla(void)
 {
     int maxY, maxX;
     getmaxyx(stdscr, maxY, maxX);
 
+    if (maxY < MIN_FILAS || maxX < MIN_COLUMNAS) {
+        endwin();
+        fprintf(stderr,
+                "Terminal muy chica (%d filas x %d columnas).\n"
+                "Se necesitan al menos %d filas x %d columnas.\n",
+                maxY, maxX, MIN_FILAS, MIN_COLUMNAS);
+        exit(1);
+    }
+
+    int resto = maxY - ALTO_COMANDOS - ALTO_EJECUCION;
+    int base = resto / 4;
+    int sobran = resto % 4;
+    int altoNuevos     = base + (sobran > 0);
+    int altoListos     = base + (sobran > 1);
+    int altoBloqueados = base + (sobran > 2);
+    int altoTerminados = base;
+
+    int y = 0;
     Pantalla p;
-    p.ejecucion  = crearVentana(maxY*8/27, maxX, 0, " Ejecución ");
-    p.nuevos     = NULL;
-    p.listos     = crearVentana(maxY*9/27, maxX, maxY*8/27, " Listos ");
-    p.bloqueados = NULL;
-    p.terminados = crearVentana(maxY*9/27, maxX, maxY*17/28, " Terminados ");
-    p.comandos   = crearVentana(maxY/10, maxX, maxY*11/12, " Comandos ");
+    p.ejecucion  = crearVentana(ALTO_EJECUCION, maxX, y, " Ejecución ");   y += ALTO_EJECUCION;
+    p.nuevos     = crearVentana(altoNuevos, maxX, y, " Nuevos ");          y += altoNuevos;
+    p.listos     = crearVentana(altoListos, maxX, y, " Listos ");          y += altoListos;
+    p.bloqueados = crearVentana(altoBloqueados, maxX, y, " Bloqueados ");  y += altoBloqueados;
+    p.terminados = crearVentana(altoTerminados, maxX, y, " Terminados ");  y += altoTerminados;
+    p.comandos   = crearVentana(ALTO_COMANDOS, maxX, y, " Comandos ");
     keypad(p.comandos, TRUE);
 
     limpiarComando(p.comandos);
     impEncabezado(p.ejecucion);
+    impEncabezado(p.nuevos);
     impEncabezado(p.listos);
+    impEncabezado(p.bloqueados);
     impEncabezado(p.terminados);
+    impRecursos(p.ejecucion);
     return p;
 }
 
-/* STUBS Fase 0 -- Entrega 2, area Interfaz. Deben aceptar v == NULL. */
-void impNuevos(WINDOW *v, Cola *c)     { (void)v; (void)c; }
-void impBloqueados(WINDOW *v, Cola *c) { (void)v; (void)c; }
-void impRecursos(WINDOW *v)            { (void)v; }
+void impNuevos(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, MODO_COLA);
+}
+
+void impBloqueados(WINDOW *ventana, Cola *cola)
+{
+    imprimirCola(ventana, cola, MODO_BLOQUEADOS);
+}
+
+void impRecursos(WINDOW *ventana)
+{
+    if (!ventana) { return; }
+
+    int maxY, maxX;
+    getmaxyx(ventana, maxY, maxX);
+    (void)maxY;
+
+    char texto[48];
+    snprintf(texto, sizeof(texto), " Recursos: X=%d Y=%d Z=%d ",
+             recursos[0], recursos[1], recursos[2]);
+    int len = (int)strlen(texto);
+    int x = maxX - len - 2;
+    if (x <= 14) { return; }                 /* no tapar el titulo */
+
+    mvwhline(ventana, 0, x, ACS_HLINE, len); /* borra el texto anterior */
+    mvwprintw(ventana, 0, x, "%s", texto);
+    wrefresh(ventana);
+}

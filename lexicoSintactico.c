@@ -1,4 +1,6 @@
 #include "prototipos.h"
+#include <errno.h>
+#include <limits.h>
 
 /* Regresa 1 si el texto coincide cn el patron (regex extendida) */
 static int coincide(const char *texto, const char *patron)
@@ -15,6 +17,7 @@ int esNumero(Token *token)
 {
     char *dato = token->textoToken;
 
+    if (coincide(dato, "^[+-]?[0-9]+,$")) { return NUM_COM; }
     if (coincide(dato, "^[+-]?[0-9]+$")) { return NUM; }
     if (coincide(dato, "^[+-]?[0-9]*\\.[0-9]*$")) { return NUM_DECIMAL; }
     return TIPO_PARAM_INVALIDO;
@@ -40,7 +43,7 @@ int esInstruccion(Token *token)
 {
     char *dato = token->textoToken;
 
-    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|END)$")) { return INSTR; }
+    if (coincide(dato, "^(MOV|ADD|SUB|MUL|DIV|INC|DEC|END|MAX|GET|FRE)$")) { return INSTR; }
     if (coincide(dato, "^[a-z]+$")) { return INICIA_MINUSCULA; }
     return esRegistro(token);
 }
@@ -68,6 +71,31 @@ int parserUnParametro(Token *token)
     return PARAMETROS_INCORRECTOS;
 }
 
+/* MAX y GET reciben tres numeros separados por coma; FRE no recibe parametros. */
+static int parserTresNumeros(Token *token)
+{
+    Token *param = token->sig;
+    int cantidad = 0;
+    for (Token *actual = param; actual; actual = actual->sig) cantidad++;
+    if (cantidad < NUM_RECURSOS) return PARAMETROS_INSUFICIENTES;
+    if (cantidad > NUM_RECURSOS) return PARAMETROS_EXTRA;
+
+    for (int i = 0; i < NUM_RECURSOS; i++) {
+        if (i < NUM_RECURSOS - 1) {
+            if (param->tipoParam != NUM_COM) return PARAMETROS_INCORRECTOS;
+        } else if (param->tipoParam != NUM) {
+            return PARAMETROS_INCORRECTOS;
+        }
+        param = param->sig;
+    }
+    return BIEN;
+}
+
+static int parserSinParametros(Token *token)
+{
+    return token->sig ? PARAMETROS_EXTRA : BIEN;
+}
+
 /* Revisa la sintazis de un solo renglon */
 static int verifRenglon(Renglon *ren)
 {
@@ -82,6 +110,12 @@ static int verifRenglon(Renglon *ren)
     }
     if (!strcmp(op, "INC") || !strcmp(op, "DEC")) {
         return parserUnParametro(tok);
+    }
+    if (!strcmp(op, "MAX") || !strcmp(op, "GET")) {
+        return parserTresNumeros(tok);
+    }
+    if (!strcmp(op, "FRE")) {
+        return parserSinParametros(tok);
     }
      if (!strcmp(op, "END"))
     {
@@ -134,6 +168,30 @@ int espaciosMultiples(char *texto)
  */
 int extraerNumeros(Renglon *ren, int out[NUM_RECURSOS])
 {
-    (void)ren; (void)out;
-    return NUMEROS_INVALIDOS;       /* TODO */
+    if (!ren || !out || !ren->primerToken) return NUMEROS_INVALIDOS;
+
+    Token *instr = ren->primerToken;
+    if (strcmp(instr->textoToken, "MAX") && strcmp(instr->textoToken, "GET"))
+        return NUMEROS_INVALIDOS;
+
+    Token *param = instr->sig;
+    for (int i = 0; i < NUM_RECURSOS; i++) {
+        if (!param) return PARAMETROS_INSUFICIENTES;
+        if (i < NUM_RECURSOS - 1 && param->tipoParam != NUM_COM)
+            return NUMEROS_INVALIDOS;
+        if (i == NUM_RECURSOS - 1 && param->tipoParam != NUM)
+            return NUMEROS_INVALIDOS;
+
+        char *fin = NULL;
+        errno = 0;
+        long valor = strtol(param->textoToken, &fin, 10);
+        if (i < NUM_RECURSOS - 1 && fin && *fin == ',') fin++;
+        if (!fin || *fin != '\0' || errno == ERANGE || valor < 0 || valor > INT_MAX)
+            return NUMEROS_INVALIDOS;
+        out[i] = (int)valor;
+        param = param->sig;
+    }
+
+    if (param) return PARAMETROS_EXTRA;
+    return BIEN;
 }

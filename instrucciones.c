@@ -51,6 +51,11 @@ int ejecutarPrograma(PCB *ejec)
     {
         return dec(instr);
     }
+    /* P1 (CPU): por ahora MAX, GET y FRE se reconocen y avanzan sin efectos. */
+    if (!strcmp(op, "MAX") || !strcmp(op, "GET") || !strcmp(op, "FRE"))
+    {
+        return BIEN;
+    }
     if (!strcmp(op, "END"))
     {
         ejec->estado = TERMINADO;
